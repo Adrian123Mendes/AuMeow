@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AuMeow 🐾 - Conectando Pets e Tutores</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts: Inter & Poppins -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Poppins:wght@500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Configuração do Tailwind -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        heading: ['Poppins', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            orange: '#F97316',
+                            purple: '#7C3AED',
+                            bg: '#F3F4F6',
+                        }
+                    },
+                    boxShadow: {
+                        'soft': '0 10px 40px -10px rgba(0,0,0,0.08)',
+                        'glow': '0 0 20px rgba(124, 58, 237, 0.3)'
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Estilos Customizados */
+        body {
+            background-color: #F3F4F6;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Glassmorphism */
+        .glass {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.6);
+        }
+
+        /* Esconder Scrollbar mas manter funcionalidade */
+        .hide-scroll::-webkit-scrollbar {
+            display: none;
+        }
+        .hide-scroll {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* Animações Suaves */
+        .fade-in {
+            animation: fadeIn 0.4s ease-in-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* Botão Gradiente Padrão */
+        .btn-primary {
+            background: linear-gradient(135deg, #F97316 0%, #7C3AED 100%);
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px -5px rgba(249, 115, 22, 0.4);
+        }
+
+        /* Menu Ativo */
+        .nav-active {
+            color: #7C3AED;
+            background-color: #F3F4F6;
+            border-right: 3px solid #7C3AED;
+        }
+        .flip-card {
+  perspective: 1000px;
+}
+
+.flip-card-inner {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  transition: transform 0.6s cubic-bezier(.24,.66,.31,1.32);;
+  transform-style: preserve-3d;
+}
+
+.flip-card:hover .flip-card-inner {
+  transform: rotateY(180deg);
+}
+
+.flip-card-front,
+.flip-card-back {
+  backface-visibility: hidden;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+
+.flip-card-back {
+  transform: rotateY(180deg);
+}
+
+    </style>
+</head>
+<body class="text-gray-600 h-screen flex flex-col overflow-hidden">
+
+    <!-- ================================================================== -->
+    <!-- BARRA DE NAVEGAÇÃO DEV (Para testar as telas) -->
+    <!-- ================================================================== -->
+    <div class="bg-gray-900 text-white text-xs py-2 px-4 flex gap-4 overflow-x-auto whitespace-nowrap z-50 shrink-0">
+        <span class="font-bold text-brand-orange">DEV NAV:</span>
+        <button onclick="nav('login')" class="hover:text-brand-orange">Login</button>
+        <button onclick="nav('register')" class="hover:text-brand-orange">Cadastro</button>
+        <button onclick="nav('dashboard')" class="hover:text-brand-orange">Dashboard</button>
+        <button onclick="nav('pet-register')" class="hover:text-brand-orange">Novo Pet</button>
+        <button onclick="nav('reminders')" class="hover:text-brand-orange">Lembretes</button>
+        <button onclick="nav('adoption')" class="hover:text-brand-orange">Adoção</button>
+        <button onclick="nav('social')" class="hover:text-brand-orange">Chat Social</button>
+        <button onclick="nav('report')" class="hover:text-brand-orange">Denúncia</button>
+        <button onclick="nav('admin')" class="hover:text-brand-purple font-bold">Admin Area</button>
+    </div>
+
+    <!-- ================================================================== -->
+    <!-- ÁREA PRINCIPAL -->
+    <!-- ================================================================== -->
+    <main id="app-container" class="flex-grow relative overflow-y-auto hide-scroll">
+
+        <!-- 1. TELA DE LOGIN -->
+        <section id="login" class="screen relative min-h-screen flex items-center justify-center p-6 bg-[url('https://images.unsplash.com/photo-1623387641168-d9803ddd3f35?auto=format&fit=crop&q=80&w=1920')] bg-cover bg-center">
+            <div class="absolute inset-0 bg-white/40 backdrop-blur-sm"></div>
+            
+            <div class="glass relative z-10 w-full max-w-md p-8 rounded-3xl shadow-soft fade-in text-center">
+                <div class="w-20 h-20 bg-gradient-to-br from-brand-orange to-brand-purple rounded-2xl mx-auto flex items-center justify-center shadow-lg mb-6 rotate-3">
+                    <i class="fa-solid fa-paw text-4xl text-white"></i>
+                </div>
+                <h1 class="font-heading text-3xl font-bold text-gray-800 mb-2">AuMeow</h1>
+                <p class="text-gray-500 mb-8">Bem-vindo de volta, humano!</p>
+
+                <form class="space-y-4 text-left">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 ml-1 mb-1 uppercase">E-mail</label>
+                        <input type="email" placeholder="exemplo@aumeow.com" class="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-purple/50 transition">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-gray-500 ml-1 mb-1 uppercase">Senha</label>
+                        <input type="password" placeholder="••••••••" class="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-purple/50 transition">
+                    </div>
+                    
+                    <div class="flex justify-end">
+                        <a href="#" class="text-sm text-brand-purple hover:underline font-medium">Esqueci minha senha</a>
+                    </div>
+
+                    <button type="button" onclick="nav('dashboard')" class="btn-primary w-full py-4 text-white font-bold rounded-xl text-lg shadow-lg">
+                        Entrar
+                    </button>
+                </form>
+
+                <div class="mt-8 text-sm">
+                    Não tem conta? <a href="#" onclick="nav('register')" class="text-brand-orange font-bold hover:underline">Criar conta</a>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2. TELA DE CADASTRO -->
+        <section id="register" class="screen hidden min-h-full flex items-center justify-center p-6">
+            <div class="bg-white w-full max-w-lg p-10 rounded-3xl shadow-soft fade-in">
+                <div class="text-center mb-8">
+                    <h2 class="font-heading text-2xl font-bold text-gray-800">Crie sua conta</h2>
+                    <p class="text-gray-400 text-sm">Junte-se à maior comunidade pet</p>
+                </div>
+
+                <form class="space-y-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <input type="text" placeholder="Nome Completo" class="w-full p-3 bg-gray-50 border-gray-100 border rounded-xl focus:ring-2 focus:ring-brand-orange/30 outline-none">
+                        <input type="text" placeholder="Telefone" class="w-full p-3 bg-gray-50 border-gray-100 border rounded-xl focus:ring-2 focus:ring-brand-orange/30 outline-none">
+                    </div>
+                    <input type="email" placeholder="E-mail" class="w-full p-3 bg-gray-50 border-gray-100 border rounded-xl focus:ring-2 focus:ring-brand-orange/30 outline-none">
+                    <input type="email" placeholder="Confirmar E-mail" class="w-full p-3 bg-gray-50 border-gray-100 border rounded-xl focus:ring-2 focus:ring-brand-orange/30 outline-none">
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <input type="password" placeholder="Senha" class="w-full p-3 bg-gray-50 border-gray-100 border rounded-xl focus:ring-2 focus:ring-brand-orange/30 outline-none">
+                        <input type="password" placeholder="Confirmar Senha" class="w-full p-3 bg-gray-50 border-gray-100 border rounded-xl focus:ring-2 focus:ring-brand-orange/30 outline-none">
+                    </div>
+
+                    <div class="pt-4">
+                        <button type="button" onclick="nav('login')" class="btn-primary w-full py-4 text-white font-bold rounded-xl shadow-lg">
+                            Cadastrar
+                        </button>
+                    </div>
+                </form>
+                <div class="mt-6 text-center">
+                    <button onclick="nav('login')" class="text-sm text-gray-400 hover:text-gray-600">Voltar para Login</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. DASHBOARD DO USUÁRIO -->
+        <section id="dashboard" class="screen hidden pb-20">
+            <!-- Header -->
+            <header class="bg-white p-6 sticky top-0 z-30 shadow-sm flex justify-between items-center rounded-b-3xl">
+                <div class="flex items-center gap-4">
+                    <div class="relative">
+                        <img src="https://i.pravatar.cc/150?img=32" alt="Avatar" class="w-14 h-14 rounded-full border-2 border-brand-purple p-1">
+                        <div class="absolute bottom-0 right-0 w-4 h-4 bg-green-500 rounded-full border-2 border-white"></div>
+                    </div>
+                    <div>
+                        <h2 class="font-heading font-bold text-gray-800 text-lg">Olá, Marina!</h2>
+                        <p class="text-xs text-gray-500 flex items-center gap-1">
+                            <i class="fa-solid fa-dog text-brand-orange"></i> Mãe do Cachaça
+                        </p>
+                    </div>
+                </div>
+                <div class="flex gap-3">
+                    <button onclick="nav('social')" class="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center text-gray-600 hover:bg-brand-purple hover:text-white transition relative">
+                        <i class="fa-regular fa-comment"></i>
+                        <span class="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full"></span>
+                    </button>
+                    <button class="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center text-gray-600 hover:bg-brand-orange hover:text-white transition">
+                        <i class="fa-regular fa-bell"></i>
+                    </button>
+                </div>
+            </header>
+
+            <div class="p-6 max-w-5xl mx-auto space-y-8 fade-in">
+                
+                <!-- Seção Meus Pets (NOVO) -->
+                <div>
+                    <div class="flex items-center justify-between mb-3 px-1">
+                        <h3 class="font-heading font-bold text-gray-800">Meus Pets</h3>
+                        <button onclick="nav('pet-register')" class="text-xs text-brand-purple font-bold hover:bg-purple-50 px-3 py-1.5 rounded-lg transition border border-transparent hover:border-purple-100 flex items-center gap-1">
+                            <i class="fa-solid fa-plus"></i> Adicionar
+                        </button>
+                    </div>
+                    <div id="dashboardPetsList" class="flex gap-4 overflow-x-auto hide-scroll pb-4 -mx-2 px-2"></div>
+
+
+
+                <!-- Card de Lembrete Urgente (dinâmico) -->
+              <div id="dashboardNextReminder" class="min-h-[84px]">
+ </div>
+
+                <!-- Menu Grid -->
+                <div>
+                    <h3 class="font-heading font-bold text-gray-800 mb-4 px-1">O que você precisa?</h3>
+                    <div class="grid grid-cols-3 md:grid-cols-6 gap-4">
+                        <!-- Botão Saúde -->
+                        <div class="flex flex-col items-center gap-2 group cursor-pointer"
+     onclick="window.open('https://www.google.com/maps/search/veterin%C3%A1rio+perto+de+mim/', '_blank')">
+    <div class="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-2xl text-pink-500 shadow-sm group-hover:bg-pink-500 group-hover:text-white transition duration-300">
+        <i class="fa-solid fa-heart-pulse"></i>
+    </div>
+    <span class="text-xs font-medium text-gray-500 group-hover:text-pink-500">Saúde</span>
+</div>
+
+                        <!-- Botão Loja -->
+                        <div class="flex flex-col items-center gap-2 group cursor-pointer"
+     onclick="window.open('https://www.cobasi.com.br/', '_blank')">
+    <div class="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-2xl text-brand-orange shadow-sm group-hover:bg-brand-orange group-hover:text-white transition duration-300">
+        <i class="fa-solid fa-bag-shopping"></i>
+    </div>
+    <span class="text-xs font-medium text-gray-500 group-hover:text-brand-orange">Loja</span>
+</div>
+                        <!-- Botão Adoção -->
+                        <div class="flex flex-col items-center gap-2 group cursor-pointer" onclick="nav('adoption')">
+                            <div class="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-2xl text-brand-purple shadow-sm group-hover:bg-brand-purple group-hover:text-white transition duration-300">
+                                <i class="fa-solid fa-house-chimney-medical"></i>
+                            </div>
+                            <span class="text-xs font-medium text-gray-500 group-hover:text-brand-purple">Adoção</span>
+                        </div>
+                        <!-- Botão Denúncia -->
+                        <div class="flex flex-col items-center gap-2 group cursor-pointer" onclick="nav('report')">
+                            <div class="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-2xl text-gray-700 shadow-sm group-hover:bg-gray-800 group-hover:text-white transition duration-300">
+                                <i class="fa-solid fa-shield-cat"></i>
+                            </div>
+                            <span class="text-xs font-medium text-gray-500 group-hover:text-gray-800">Denúncia</span>
+                        </div>
+                         <!-- Botão Chat -->
+                         <div class="flex flex-col items-center gap-2 group cursor-pointer" onclick="nav('social')">
+                            <div class="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-2xl text-blue-500 shadow-sm group-hover:bg-blue-500 group-hover:text-white transition duration-300">
+                                <i class="fa-solid fa-comments"></i>
+                            </div>
+                            <span class="text-xs font-medium text-gray-500 group-hover:text-blue-500">Social</span>
+                        </div>
+                        <!-- Botão Add Lembrete -->
+                        <div class="flex flex-col items-center gap-2 group cursor-pointer" onclick="nav('reminders')">
+                            <div class="w-16 h-16 border-2 border-dashed border-gray-300 rounded-2xl flex items-center justify-center text-2xl text-gray-400 group-hover:border-brand-purple group-hover:text-brand-purple transition duration-300">
+                                <i class="fa-solid fa-plus"></i>
+                            </div>
+                            <span class="text-xs font-medium text-gray-500">Lembrete</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Seção Serviços (Scroll Horizontal) -->
+                <div>
+                    <h3 class="font-heading font-bold text-gray-800 mb-4 px-1 flex justify-between items-end">
+                        Serviços parceiros
+                        <span class="text-xs text-brand-purple cursor-pointer">Ver todos</span>
+                    </h3>
+                    <div class="flex gap-4 overflow-x-auto pb-4 hide-scroll">
+                        <!-- Card Serviço 1 -->
+                        <div class="flex flex-wrap gap-6">
+
+    <!-- Banho e Tosa -->
+    <div class="bg-white p-4 rounded-2xl shadow-sm w-[260px]">
+        <img src="https://www.petlife.com.br/assets/652d9e26df697906ef1d8895/banner-credenciamento-mobile.jpg" class="w-full h-32 object-cover rounded-xl mb-3">
+
+        <h4 class="font-bold text-gray-800">Pet life SPA</h4>
+        <p class="text-sm text-gray-500">O espaço que o seu pet merece</p>
+
+        <div class="flex justify-between items-center mt-3">
+            <a href="https://petlifespa.com.br/" target="_blank"
+                class="px-4 py-2 bg-brand-orange text-white rounded-xl shadow hover:scale-105 transition">
+                Ver Serviço
+            </a>
+            <span class="text-xs bg-orange-100 text-orange-600 px-2 py-1 rounded-lg">
+                ⭐ 4.8
+            </span>
+        </div>
+    </div>
+
+    <!-- Hotelzinho -->
+    <div class="bg-white p-4 rounded-2xl shadow-sm w-[260px]">
+        <img src="https://scontent-iad3-1.cdninstagram.com/v/t51.82787-15/590403555_18172959511373578_8926296969457043584_n.heic?stp=dst-jpg_e35_tt6&_nc_cat=109&ccb=7-5&_nc_sid=18de74&efg=eyJlZmdfdGFnIjoiQ0FST1VTRUxfSVRFTS5iZXN0X2ltYWdlX3VybGdlbi5DM2UifQ%3D%3D&_nc_ohc=YM7iZ-RueyEQ7kNvwGVtI12&_nc_oc=AdnPpaZRMQfP21Be5fkmlfkrmQJWIs50NHqqZfY2Syw-huUwApBG2KqG8Kyqb0DTmuw&_nc_zt=23&_nc_ht=scontent-iad3-1.cdninstagram.com&edm=AEQ6tj4EAAAA&_nc_gid=9bBrzrz7PPyrrTIFDhk5Nw&oh=00_Afg4lHoYFTKy400kLjg510eEhcVVcv5DcUY-LPgUJDrARQ&oe=692BF7D9" class="w-full h-32 object-cover rounded-xl mb-3">
+
+        <h4 class="font-bold text-gray-800">Brasília pet hotel</h4>
+        <p class="text-sm text-gray-500">O seu hotel para pet</p>
+
+        <div class="flex justify-between items-center mt-3">
+            <a href="https://www.brasiliapethotel.com.br/" target="_blank"
+                class="px-4 py-2 bg-brand-orange text-white rounded-xl shadow hover:scale-105 transition">
+                Ver Serviço
+            </a>
+            <span class="text-xs bg-orange-100 text-orange-600 px-2 py-1 rounded-lg">
+                ⭐ 5.0
+            </span>
+        </div>
+    </div>
+
+    <!-- Veterinário -->
+    <div class="bg-white p-4 rounded-2xl shadow-sm w-[260px]">
+        <img src="https://petcont.com.br/wp-content/uploads/2024/01/Reforma-Tributaria-no-Setor-Pet.jpg" class="w-full h-32 object-cover rounded-xl mb-3">
+
+        <h4 class="font-bold text-gray-800">Animal Life</h4>
+        <p class="text-sm text-gray-500">Clínica veterinária 24H</p>
+
+        <div class="flex justify-between items-center mt-3">
+            <a href="https://web.animallife24h.com.br/" target="_blank"
+                class="px-4 py-2 bg-brand-orange text-white rounded-xl shadow hover:scale-105 transition">
+                Ver Serviço
+            </a>
+            <span class="text-xs bg-orange-100 text-orange-600 px-2 py-1 rounded-lg">
+                ⭐ 4.9
+            </span>
+        </div>
+    </div>
+
+</div>
+
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. CADASTRO DE PET -->
+        <section id="pet-register" class="screen hidden p-6 max-w-4xl mx-auto h-full overflow-y-auto">
+            <div class="flex items-center gap-4 mb-6">
+                <button onclick="nav('dashboard')" class="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-gray-600 hover:text-brand-orange">
+                    <i class="fa-solid fa-arrow-left"></i>
+                </button>
+                <h2 class="font-heading text-2xl font-bold text-gray-800">Novo Integrante</h2>
+            </div>
+
+            <div class="flex flex-col md:flex-row gap-8">
+                <!-- Formulário -->
+                <div class="flex-1 space-y-5 bg-white p-6 rounded-3xl shadow-sm">
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 mb-1 ml-1 uppercase">Nome</label>
+                        <input type="text" id="petNameInput" onkeyup="updatePetPreview()" placeholder="Ex: Pipoca" class="w-full p-3 bg-gray-50 rounded-xl border-none focus:ring-2 focus:ring-brand-purple">
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-400 mb-1 ml-1 uppercase">Raça</label>
+                            <input type="text" id="petBreedInput" onkeyup="updatePetPreview()" placeholder="SRD" class="w-full p-3 bg-gray-50 rounded-xl border-none focus:ring-2 focus:ring-brand-purple">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-gray-400 mb-1 ml-1 uppercase">Idade</label>
+                            <input type="text" id="petAgeInput" onkeyup="updatePetPreview()" placeholder="Anos/Meses" readonly  class="w-full p-3 bg-gray-50 rounded-xl border-none focus:ring-2 focus:ring-brand-purple">
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 mb-1 ml-1 uppercase">Data de nascimento</label>
+                        <input type="date" id="petDateInput" onchange="updateZodiac()" class="w-full p-3 bg-gray-50 rounded-xl border-none focus:ring-2 focus:ring-brand-purple text-gray-500">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-bold text-gray-400 mb-1 ml-1 uppercase">Foto</label>
+
+                         <input 
+                             id="petPhotoInput"
+                             type="file"
+                             accept="image/*"
+                             class="w-full p-3 bg-gray-50 rounded-xl border-2 border-dashed border-gray-300 cursor-pointer"
+    >
+</div>
+
+
+                    <button onclick="salvarPet()" class="btn-primary w-full py-4 text-white font-bold rounded-xl shadow-lg mt-4">
+    Salvar Pet
+</button>
+
+                </div>
+
+                <!-- Preview Card -->
+                <div class="w-full md:w-80">
+                    <p class="text-xs font-bold text-gray-400 mb-2 uppercase text-center">Pré-visualização</p>
+                    <div class="bg-white p-6 rounded-[32px] shadow-glow text-center relative overflow-hidden transition-all duration-500">
+                        <div class="absolute top-0 left-0 w-full h-24 bg-gradient-to-r from-brand-orange/20 to-brand-purple/20"></div>
+                        
+                        <div class="w-28 h-28 mx-auto bg-gray-200 rounded-full border-4 border-white shadow-md relative z-10 bg-[url('https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&q=80&w=300')] bg-cover bg-center"></div>
+                        
+                        <h3 id="previewName" class="font-heading font-bold text-2xl text-gray-800 mt-4">Pipoca</h3>
+                        <p class="text-sm text-gray-500 mb-4"><span id="previewBreed">SRD</span> • <span id="previewAge">...</span></p>
+                        
+                        <!-- Signo Automático -->
+                        <div class="bg-indigo-50 rounded-2xl p-3 flex items-center justify-center gap-3">
+                            <div class="w-10 h-10 bg-white rounded-full flex items-center justify-center text-xl shadow-sm" id="zodiacIcon">❓</div>
+                            <div class="text-left">
+                                <span class="block text-[10px] text-gray-400 font-bold uppercase">Signo</span>
+                                <span class="block text-sm font-bold text-brand-purple" id="zodiacName">--</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+          
+        <!-- 5. TELA DE LEMBRETES -->
+<section id="reminders" class="screen hidden p-6 max-w-3xl mx-auto">
+
+    <div class="flex justify-between items-center mb-8">
+        <div class="flex items-center gap-4">
+            <button onclick="nav('dashboard')" class="text-gray-400 hover:text-gray-600">
+                <i class="fa-solid fa-arrow-left text-xl"></i>
+            </button>
+
+            <h2 class="font-heading text-2xl font-bold text-gray-800">Dashboard</h2>
+        </div>
+
+        <button onclick="abrirModalCriarLembrete()" 
+                class="w-12 h-12 bg-gray-900 text-white rounded-full shadow-lg hover:scale-110 transition flex items-center justify-center">
+            <i class="fa-solid fa-plus"></i>
+        </button>
+    </div>
+
+    <div id="listaLembretes" class="lembrete-lista"></div>
+
+</section>
+
+
+
+
+        </section>
+
+        <!-- 6. TELA DE DENÚNCIA -->
+        <section id="report" class="screen hidden min-h-full flex items-center justify-center p-6 bg-gray-100">
+            <div class="bg-white w-full max-w-md p-8 rounded-3xl shadow-xl text-center border-t-8 border-gray-800 fade-in">
+                <div class="w-20 h-20 bg-gray-200 rounded-full mx-auto flex items-center justify-center text-4xl text-gray-600 mb-6">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <h2 class="font-heading text-2xl font-bold text-gray-900 mb-2">Canal de Denúncia</h2>
+                <p class="text-sm text-gray-500 mb-8 leading-relaxed">
+                    Maus-tratos a animais é crime (Lei 9.605/98). Sua identidade será preservada. Ao clicar abaixo, você será redirecionado para o portal oficial da Polícia.
+                </p>
+
+                <a href="https://www.pcdf.df.gov.br/servicos/197/maus-tratos-a-animais" target="_blank" class="block w-full bg-gray-800 hover:bg-gray-900 text-white font-bold py-4 rounded-xl shadow-lg transition flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-external-link-alt"></i> Fazer Denúncia Oficial
+                </a>
+                
+                <button onclick="nav('dashboard')" class="mt-6 text-gray-400 text-sm hover:text-gray-600">Cancelar e voltar</button>
+            </div>
+        </section>
+
+        <!-- 7. CHAT SOCIAL -->
+        <section id="social" class="screen hidden h-full flex flex-col md:flex-row bg-white">
+            <!-- Sidebar Lista -->
+            <div class="w-full md:w-80 border-r border-gray-100 bg-gray-50 flex flex-col h-1/3 md:h-full">
+                <div class="p-4 flex justify-between items-center bg-white border-b border-gray-100">
+                    <h2 class="font-heading font-bold text-gray-800">Mensagens</h2>
+                    <button class="text-xs bg-brand-purple text-white px-3 py-1 rounded-full font-bold shadow-md hover:bg-purple-700 transition">+ Amigo</button>
+                </div>
+                <!-- Convites -->
+                <div class="p-3 bg-orange-50 border-b border-orange-100">
+                    <p class="text-[10px] font-bold text-brand-orange uppercase mb-2">Convites Pendentes</p>
+                    <div class="flex items-center gap-2 bg-white p-2 rounded-lg shadow-sm">
+                        <img src="https://i.pravatar.cc/150?img=12" class="w-8 h-8 rounded-full">
+                        <div class="flex-1 min-w-0">
+                            <p class="text-xs font-bold truncate">Carla (Thor)</p>
+                        </div>
+                        <button class="text-green-500 hover:bg-green-100 p-1 rounded"><i class="fa-solid fa-check"></i></button>
+                        <button class="text-red-500 hover:bg-red-100 p-1 rounded"><i class="fa-solid fa-xmark"></i></button>
+                    </div>
+                </div>
+                <!-- Lista de Conversas -->
+                <div class="flex-1 overflow-y-auto p-2 space-y-1">
+                    <div class="flex items-center gap-3 p-3 bg-white rounded-xl shadow-sm border border-brand-purple/20 cursor-pointer">
+                        <div class="relative">
+                            <img src="https://i.pravatar.cc/150?img=60" class="w-10 h-10 rounded-full">
+                            <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-white rounded-full"></span>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex justify-between">
+                                <h4 class="font-bold text-sm text-gray-800">Pedro (Rex)</h4>
+                                <span class="text-[10px] text-gray-400">10:42</span>
+                            </div>
+                            <p class="text-xs text-gray-500 truncate">Vamos no parque hoje?</p>
+                        </div>
+                    </div>
+                     <div class="flex items-center gap-3 p-3 hover:bg-gray-100 rounded-xl cursor-pointer transition">
+                        <img src="https://i.pravatar.cc/150?img=5" class="w-10 h-10 rounded-full grayscale opacity-70">
+                        <div class="flex-1">
+                             <div class="flex justify-between">
+                                <h4 class="font-bold text-sm text-gray-600">Ana Vet</h4>
+                                <span class="text-[10px] text-gray-400">Ontem</span>
+                            </div>
+                            <p class="text-xs text-gray-400 truncate">O resultado saiu!</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Área de Chat -->
+            <div class="flex-1 bg-[#F0F2F5] flex flex-col h-2/3 md:h-full relative">
+                <!-- Chat Header -->
+                <div class="bg-white p-4 shadow-sm flex items-center gap-3 z-10">
+                    <button class="md:hidden text-gray-500" onclick="nav('dashboard')"><i class="fa-solid fa-arrow-left"></i></button>
+                    <img src="https://i.pravatar.cc/150?img=60" class="w-10 h-10 rounded-full">
+                    <div>
+                        <h3 class="font-bold text-gray-800 text-sm">Pedro (Rex)</h3>
+                        <p class="text-xs text-green-500 flex items-center gap-1"><i class="fa-solid fa-circle text-[6px]"></i> Online</p>
+                    </div>
+                </div>
+
+                <!-- Messages -->
+                <div class="flex-1 overflow-y-auto p-4 space-y-4">
+                    <!-- Recebida -->
+                    <div class="flex items-end gap-2">
+                        <img src="https://i.pravatar.cc/150?img=60" class="w-8 h-8 rounded-full mb-1">
+                        <div class="bg-white text-gray-700 p-3 rounded-2xl rounded-bl-none shadow-sm max-w-[75%] text-sm">
+                            E aí! Vamos levar os cachorros no Ibirapuera hoje? 🌳
+                        </div>
+                    </div>
+                    <!-- Enviada -->
+                    <div class="flex items-end gap-2 justify-end">
+                        <div class="bg-brand-purple text-white p-3 rounded-2xl rounded-br-none shadow-md max-w-[75%] text-sm">
+                            Oi Pedro! Claro, que horas? O Pipoca tá super animado! 🐶
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Input -->
+                <div class="p-4 bg-white flex items-center gap-3">
+                    <button class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-paperclip"></i></button>
+                    <input type="text" placeholder="Digite uma mensagem..." class="flex-1 bg-gray-100 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-purple/50">
+                    <button class="w-10 h-10 bg-brand-orange text-white rounded-full flex items-center justify-center shadow-md hover:scale-105 transition"><i class="fa-solid fa-paper-plane"></i></button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 8. CHATBOT IA (FLUTUANTE) -->
+        <!-- Janela do Chatbot (Inicialmente oculta) -->
+        <div id="ai-chat-window" class="fixed bottom-20 right-6 w-80 bg-white rounded-2xl shadow-2xl border border-gray-100 hidden z-40 flex flex-col overflow-hidden transition-all origin-bottom-right transform scale-95">
+            <div class="bg-gradient-to-r from-gray-800 to-gray-900 p-4 flex justify-between items-center text-white">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 bg-brand-orange rounded-full flex items-center justify-center"><i class="fa-solid fa-cat"></i></div>
+                    <span class="font-bold text-sm">AuMeow IA</span>
+                </div>
+                <button onclick="toggleChat()" class="text-gray-400 hover:text-white"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <!-- Área de Mensagens -->
+            <div id="chat-messages" class="h-64 bg-gray-50 p-4 overflow-y-auto space-y-3 text-sm flex flex-col">
+                <!-- Mensagem Inicial -->
+                <div class="flex gap-2 items-end">
+                    <div class="w-6 h-6 bg-brand-orange rounded-full flex-shrink-0 flex items-center justify-center text-white text-xs"><i class="fa-solid fa-cat"></i></div>
+                    <div class="bg-white p-3 rounded-xl rounded-tl-none shadow-sm text-gray-600 border border-gray-100">
+                        Olá! Sou a IA do AuMeow. 😺<br>Posso ajudar com <b>saúde</b>, <b>serviços</b> ou <b>dúvidas</b> do app.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Input Area -->
+            <div class="p-3 bg-white border-t border-gray-100 flex gap-2">
+                <input id="chat-input" type="text" onkeypress="handleChatKey(event)" class="flex-1 bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-brand-purple" placeholder="Digite aqui...">
+                <button onclick="sendChatMessage()" class="text-brand-purple hover:bg-purple-50 p-2 rounded-lg transition"><i class="fa-solid fa-paper-plane"></i></button>
+            </div>
+        </div>
+
+        <!-- Botão Flutuante -->
+        <button onclick="toggleChat()" class="fixed bottom-6 right-6 w-14 h-14 bg-gray-900 text-white rounded-full shadow-glow flex items-center justify-center text-2xl z-50 hover:scale-110 transition border-4 border-white">
+            <i class="fa-solid fa-cat"></i>
+        </button>
+
+        <!-- 9. TELA DE ADOÇÃO -->
+        <section id="adoption" class="screen hidden p-6 max-w-6xl mx-auto">
+            <div class="flex flex-col md:flex-row justify-between items-end mb-8 gap-4">
+                <div>
+                    <button onclick="nav('dashboard')" class="text-gray-400 mb-2 hover:text-brand-orange"><i class="fa-solid fa-arrow-left"></i> Voltar</button>
+                    <h2 class="font-heading text-3xl font-bold text-gray-800"><span class="text-brand-purple">Adote</span> um Amor</h2>
+                </div>
+                <div class="flex gap-2 bg-white p-1 rounded-full shadow-sm">
+                    <button class="bg-gray-900 text-white px-4 py-2 rounded-full text-sm font-bold">Todos</button>
+                    <button class="text-gray-500 px-4 py-2 rounded-full text-sm font-bold hover:bg-gray-100">Cães</button>
+                    <button class="text-gray-500 px-4 py-2 rounded-full text-sm font-bold hover:bg-gray-100">Gatos</button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                <!-- Card 1 -->
+                <div class="bg-white rounded-[32px] p-3 shadow-sm hover:shadow-xl transition duration-300 group">
+                    <div class="relative h-64 rounded-[24px] overflow-hidden mb-3">
+                        <img src="https://adotar.com.br/upload/2025-11/animais_imagem1288955.jpg?w=700&format=webp" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                        <div class="absolute top-3 left-3 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-xs font-bold text-brand-orange shadow-sm">🐱 Macho</div>
+                    </div>
+                    <div class="px-2 pb-2">
+                        <div class="flex justify-between items-start mb-1">
+                            <h3 class="font-heading font-bold text-xl text-gray-800">Totoro</h3>
+                            <span class="text-xs bg-green-100 text-green-600 px-2 py-1 rounded-md font-bold">4 meses</span>
+                        </div>
+                        <p class="text-gray-400 text-sm mb-4">Calmo • Carinhoso</p>
+                        <a href="https://adotar.com.br/df-brasilia/gato/adocao/totoro/320354" target="_blank"
+   class="block w-full py-3 px-3 bg-gray-100 text-gray-800 rounded-xl font-bold hover:bg-brand-purple hover:text-white transition text-center">
+   Conhecer
+</a>
+
+
+                    </div>
+                </div>
+
+                 <!-- Card 2 -->
+                 <div class="bg-white rounded-[32px] p-3 shadow-sm hover:shadow-xl transition duration-300 group">
+                    <div class="relative h-64 rounded-[24px] overflow-hidden mb-3">
+                        <img src="https://adotar.com.br/upload/2025-11/animais_imagem1288658.jpeg?w=700&format=webp" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
+                        <div class="absolute top-3 left-3 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-xs font-bold text-brand-purple shadow-sm">🐶 Macho</div>
+                    </div>
+                    <div class="px-2 pb-2">
+                        <div class="flex justify-between items-start mb-1">
+                            <h3 class="font-heading font-bold text-xl text-gray-800">Bento</h3>
+                            <span class="text-xs bg-green-100 text-green-600 px-2 py-1 rounded-md font-bold">6 meses</span>
+                        </div>
+                        <p class="text-gray-400 text-sm mb-4">Brincalhão • Vacinado</p>
+                        <a href="https://adotar.com.br/df-brasilia/cao/adocao/bento/320278" target="_blank"
+   class="block w-full py-3 px-3 bg-gray-100 text-gray-800 rounded-xl font-bold hover:bg-brand-purple hover:text-white transition text-center">
+   Conhecer
+</a>
+
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 10. ÁREA ADMINISTRATIVA -->
+        <section id="admin" class="screen hidden h-full flex bg-gray-100 text-gray-800">
+            <!-- Sidebar Admin -->
+            <aside class="w-64 bg-white border-r border-gray-200 hidden md:flex flex-col p-6">
+                <div class="flex items-center gap-2 mb-10 text-brand-purple">
+                    <i class="fa-solid fa-shield-cat text-2xl"></i>
+                    <h2 class="font-heading font-bold text-xl text-gray-900">Admin</h2>
+                </div>
+                <nav class="space-y-2">
+                    <button onclick="switchAdminTab('dash')" class="admin-link w-full text-left px-4 py-3 rounded-xl bg-purple-50 text-brand-purple font-bold flex items-center gap-3">
+                        <i class="fa-solid fa-chart-pie"></i> Dashboard
+                    </button>
+                    <button onclick="switchAdminTab('store')" class="admin-link w-full text-left px-4 py-3 rounded-xl text-gray-500 hover:bg-gray-50 flex items-center gap-3 transition">
+                        <i class="fa-solid fa-store"></i> Loja
+                    </button>
+                    <button onclick="switchAdminTab('users')" class="admin-link w-full text-left px-4 py-3 rounded-xl text-gray-500 hover:bg-gray-50 flex items-center gap-3 transition">
+                        <i class="fa-solid fa-users"></i> Usuários
+                    </button>
+                </nav>
+            </aside>
+
+            <!-- Content -->
+            <div class="flex-1 overflow-y-auto p-8">
+                
+                <!-- 10.1 Dashboard Admin -->
+                <div id="admin-dash" class="admin-tab fade-in">
+                    <h1 class="text-2xl font-bold text-gray-800 mb-6">Visão Geral</h1>
+                    <!-- Stats Cards -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-green-500">
+                            <p class="text-xs font-bold text-gray-400 uppercase">Receita Total</p>
+                            <h3 class="text-3xl font-bold text-gray-800 mt-1">R$ 45.200</h3>
+                            <span class="text-green-500 text-xs font-bold">▲ +12% esse mês</span>
+                        </div>
+                         <div class="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-blue-500">
+                            <p class="text-xs font-bold text-gray-400 uppercase">Novos Usuários</p>
+                            <h3 class="text-3xl font-bold text-gray-800 mt-1">1,240</h3>
+                            <span class="text-blue-500 text-xs font-bold">▲ +85 essa semana</span>
+                        </div>
+                        <div class="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-brand-orange">
+                            <p class="text-xs font-bold text-gray-400 uppercase">Pedidos Pendentes</p>
+                            <h3 class="text-3xl font-bold text-gray-800 mt-1">34</h3>
+                            <span class="text-brand-orange text-xs font-bold">Ação Necessária</span>
+                        </div>
+                    </div>
+
+                    <!-- Gráfico Fake (CSS Bars) -->
+                    <div class="bg-white p-6 rounded-2xl shadow-sm mb-6">
+                        <h3 class="font-bold mb-6">Vendas Semanais</h3>
+                        <div class="flex items-end justify-between h-48 gap-4 px-4">
+                            <!-- Barra --> <div class="w-full bg-purple-100 rounded-t-lg relative h-[40%] group"><div class="absolute bottom-0 w-full bg-brand-purple rounded-t-lg h-full transition-all group-hover:bg-purple-700"></div></div>
+                            <!-- Barra --> <div class="w-full bg-purple-100 rounded-t-lg relative h-[60%] group"><div class="absolute bottom-0 w-full bg-brand-purple rounded-t-lg h-full transition-all group-hover:bg-purple-700"></div></div>
+                            <!-- Barra --> <div class="w-full bg-purple-100 rounded-t-lg relative h-[30%] group"><div class="absolute bottom-0 w-full bg-brand-purple rounded-t-lg h-full transition-all group-hover:bg-purple-700"></div></div>
+                            <!-- Barra --> <div class="w-full bg-purple-100 rounded-t-lg relative h-[80%] group"><div class="absolute bottom-0 w-full bg-brand-purple rounded-t-lg h-full transition-all group-hover:bg-purple-700"></div></div>
+                            <!-- Barra --> <div class="w-full bg-purple-100 rounded-t-lg relative h-[90%] group shadow-lg"><div class="absolute bottom-0 w-full bg-brand-orange rounded-t-lg h-full transition-all"></div></div> <!-- Destaque -->
+                            <!-- Barra --> <div class="w-full bg-purple-100 rounded-t-lg relative h-[50%] group"><div class="absolute bottom-0 w-full bg-brand-purple rounded-t-lg h-full transition-all group-hover:bg-purple-700"></div></div>
+                        </div>
+                        <div class="flex justify-between text-xs text-gray-400 mt-2 px-4">
+                            <span>SEG</span><span>TER</span><span>QUA</span><span>QUI</span><span>SEX</span><span>SÁB</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 10.2 Gerenciamento Loja -->
+                <div id="admin-store" class="admin-tab hidden fade-in">
+                    <div class="flex justify-between items-center mb-6">
+                        <h1 class="text-2xl font-bold text-gray-800">Produtos</h1>
+                        <button class="bg-brand-purple text-white px-4 py-2 rounded-lg font-bold hover:bg-purple-700 shadow-lg">+ Novo Produto</button>
+                    </div>
+                    
+                    <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
+                        <table class="w-full text-left border-collapse">
+                            <thead class="bg-gray-50 text-xs text-gray-500 uppercase border-b border-gray-100">
+                                <tr>
+                                    <th class="p-4">Item</th>
+                                    <th class="p-4">Preço</th>
+                                    <th class="p-4">Estoque</th>
+                                    <th class="p-4 text-right">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100 text-sm">
+                                <tr class="hover:bg-gray-50 transition">
+                                    <td class="p-4 flex items-center gap-3">
+                                        <div class="w-10 h-10 bg-gray-200 rounded-lg"></div>
+                                        <span class="font-bold text-gray-700">Ração Premium 15kg</span>
+                                    </td>
+                                    <td class="p-4">R$ 249,90</td>
+                                    <td class="p-4"><span class="bg-green-100 text-green-700 px-2 py-1 rounded text-xs font-bold">45 un</span></td>
+                                    <td class="p-4 text-right space-x-2">
+                                        <button class="text-blue-500 hover:bg-blue-100 p-2 rounded"><i class="fa-solid fa-pen"></i></button>
+                                        <button class="text-red-500 hover:bg-red-100 p-2 rounded"><i class="fa-solid fa-trash"></i></button>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-50 transition">
+                                    <td class="p-4 flex items-center gap-3">
+                                        <div class="w-10 h-10 bg-gray-200 rounded-lg"></div>
+                                        <span class="font-bold text-gray-700">Brinquedo Osso</span>
+                                    </td>
+                                    <td class="p-4">R$ 29,90</td>
+                                    <td class="p-4"><span class="bg-red-100 text-red-700 px-2 py-1 rounded text-xs font-bold">2 un</span></td>
+                                    <td class="p-4 text-right space-x-2">
+                                        <button class="text-blue-500 hover:bg-blue-100 p-2 rounded"><i class="fa-solid fa-pen"></i></button>
+                                        <button class="text-red-500 hover:bg-red-100 p-2 rounded"><i class="fa-solid fa-trash"></i></button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- 10.3 CRUD Usuários -->
+                <div id="admin-users" class="admin-tab hidden fade-in">
+                    <h1 class="text-2xl font-bold text-gray-800 mb-6">Usuários</h1>
+                    <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
+                        <table class="w-full text-left">
+                            <thead class="bg-gray-50 text-xs text-gray-500 uppercase border-b border-gray-100">
+                                <tr>
+                                    <th class="p-4">Nome</th>
+                                    <th class="p-4">E-mail</th>
+                                    <th class="p-4">Status</th>
+                                    <th class="p-4 text-right">Gerenciar</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100 text-sm">
+                                <tr class="hover:bg-gray-50 transition">
+                                    <td class="p-4 font-bold text-gray-700 flex items-center gap-2">
+                                        <img src="https://i.pravatar.cc/150?img=32" class="w-8 h-8 rounded-full"> Marina Silva
+                                    </td>
+                                    <td class="p-4 text-gray-500">marina@email.com</td>
+                                    <td class="p-4"><span class="w-2 h-2 rounded-full bg-green-500 inline-block mr-1"></span> Ativo</td>
+                                    <td class="p-4 text-right">
+                                        <button class="text-gray-400 hover:text-gray-800"><i class="fa-solid fa-ellipsis-vertical"></i></button>
+                                    </td>
+                                </tr>
+                                <tr class="hover:bg-gray-50 transition">
+                                    <td class="p-4 font-bold text-gray-700 flex items-center gap-2">
+                                        <img src="https://i.pravatar.cc/150?img=12" class="w-8 h-8 rounded-full"> Carlos Edu
+                                    </td>
+                                    <td class="p-4 text-gray-500">carlos@email.com</td>
+                                    <td class="p-4"><span class="w-2 h-2 rounded-full bg-gray-300 inline-block mr-1"></span> Offline</td>
+                                    <td class="p-4 text-right">
+                                        <button class="text-gray-400 hover:text-gray-800"><i class="fa-solid fa-ellipsis-vertical"></i></button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+<script src="assets/js/utils.js"></script>
+<script src="assets/js/navigation.js"></script>
+<script src="assets/js/chat.js"></script>
+<script src="assets/js/app.js"></script>
+<script src="assets/js/pets.js"></script>
+<script src="assets/js/lembretes.js"></script>
+
+
+<!-- MODAL: Editar Lembrete -->
+<div id="modalEditarLembrete" class="fixed inset-0 bg-black bg-opacity-40 backdrop-blur-sm hidden z-50 flex items-center justify-center">
+    <div class="bg-white w-11/12 max-w-md p-6 rounded-2xl shadow-xl">
+        
+        <h2 class="font-heading text-xl font-bold text-gray-800 mb-4">
+            Editar Lembrete
+        </h2>
+
+        <input id="editTitulo" type="text" placeholder="Título"
+            class="w-full p-3 rounded-xl border mb-3" />
+        
+        <select id="editTipo" class="w-full p-3 rounded-xl border mb-3">
+            <option value="">Tipo</option>
+            <option value="vacina">Vacina</option>
+            <option value="comprar">Comprar</option>
+        </select>
+
+        <input id="editData" type="datetime-local"
+            class="w-full p-3 rounded-xl border mb-3" />
+
+        <input id="editLocal" type="text" placeholder="Local"
+            class="w-full p-3 rounded-xl border mb-3" />
+
+        <textarea id="editDesc" placeholder="Descrição (opcional)"
+            class="w-full p-3 rounded-xl border mb-3 h-20"></textarea>
+
+        <div class="flex justify-end gap-3 mt-4">
+            <button onclick="fecharModalEditarLembrete()"
+                class="px-4 py-2 rounded-xl bg-gray-300 text-gray-800">
+                Cancelar
+            </button>
+
+            <button onclick="salvarEdicaoLembrete()"
+                class="px-4 py-2 rounded-xl bg-gray-900 text-white">
+                Salvar
+            </button>
+        </div>
+
+    </div>
+</div>
+
+<!-- MODAL: Criar Lembrete -->
+<div id="modalCriarLembrete" class="fixed inset-0 bg-black bg-opacity-40 backdrop-blur-sm hidden z-50 flex items-center justify-center">
+    <div class="bg-white w-11/12 max-w-md p-6 rounded-2xl shadow-xl">
+        
+        <h2 class="font-heading text-xl font-bold text-gray-800 mb-4">
+            Novo Lembrete
+        </h2>
+
+        <input id="tituloLembrete" type="text" placeholder="Título"
+            class="w-full p-3 rounded-xl border mb-3" />
+        
+        <select id="tipoLembrete" class="w-full p-3 rounded-xl border mb-3">
+            <option value="">Tipo</option>
+            <option value="vacina">Vacina</option>
+            <option value="comprar">Comprar</option>
+        </select>
+
+        <input id="dataHoraLembrete" type="datetime-local"
+            class="w-full p-3 rounded-xl border mb-3" />
+
+        <input id="localLembrete" type="text" placeholder="Local"
+            class="w-full p-3 rounded-xl border mb-3" />
+
+        <textarea id="descricaoLembrete" placeholder="Descrição (opcional)"
+            class="w-full p-3 rounded-xl border mb-3 h-20"></textarea>
+
+        <div class="flex justify-end gap-3 mt-4">
+            <button onclick="fecharModalCriarLembrete()"
+                class="px-4 py-2 rounded-xl bg-gray-300 text-gray-800">
+                Cancelar
+            </button>
+
+            <button onclick="salvarLembrete()"
+                class="px-4 py-2 rounded-xl bg-gray-900 text-white">
+                Salvar
+            </button>
+        </div>
+
+    </div>
+</div>
+
+
+
+</body>
+</html>
