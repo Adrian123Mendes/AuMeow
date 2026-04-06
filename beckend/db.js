@@ -1,10 +1,16 @@
-import mysql from "mysql2/promise";
-import dotenv from "dotenv";
+import mysql from 'mysql2/promise';
+import dotenv from 'dotenv';
+
 dotenv.config();
 
-export const db = mysql.createPool({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
+const db = mysql.createPool({
+  host: process.env.DB_HOST || 'localhost',
+  user: process.env.DB_USER || 'root',
+  password: process.env.DB_PASSWORD || 'sua_senha',
+  database: process.env.DB_NAME || 'seu_banco',
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0
 });
+
+export { db };
