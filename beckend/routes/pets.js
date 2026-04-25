@@ -19,4 +19,3 @@ router.put("/:id", atualizarPet);
 router.delete("/:id", deletarPet);
 
 export default router;
-

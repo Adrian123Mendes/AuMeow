@@ -4,7 +4,7 @@ import dotenv from "dotenv";
 
 import petRoutes from "./routes/pets.js";
 import iaRoutes from "./routes/ia.js";
-import lembreteRoutes from "./routes/lembretes.js";  // ⭐ IMPORT NOVO
+import lembreteRoutes from "./routes/lembretes.js";  // â­ IMPORT NOVO
 
 dotenv.config();
 
@@ -16,11 +16,11 @@ app.use("/uploads/pets", express.static("uploads/pets"));
 // Rotas
 app.use("/api/pets", petRoutes);
 app.use("/api/ia", iaRoutes);
-app.use("/api/lembretes", lembreteRoutes);  // ⭐ REGISTRO NOVO
+app.use("/api/lembretes", lembreteRoutes);  // â­ REGISTRO NOVO
 
 // Rota de teste
 app.get("/", (req, res) => {
-  res.send("API AuMeow funcionando 🚀");
+  res.send("API AuMeow funcionando ðŸš€");
 });
 
 // Iniciar servidor

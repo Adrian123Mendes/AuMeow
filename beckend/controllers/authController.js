@@ -6,14 +6,14 @@ export const login = async (req, res) => {
   const { email, senha } = req.body;
 
   try {
-    // Procurando usuário na tabela usuarios
+    // Procurando usuÃ¡rio na tabela usuarios
     const [rows] = await db.query(
       "SELECT * FROM usuarios WHERE email = ?",
       [email]
     );
 
     if (rows.length === 0) {
-      return res.status(401).json({ error: "Usuário não encontrado." });
+      return res.status(401).json({ error: "UsuÃ¡rio nÃ£o encontrado." });
     }
 
     const usuario = rows[0];

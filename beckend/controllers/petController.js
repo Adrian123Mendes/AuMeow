@@ -8,7 +8,7 @@ export const criarPet = async (req, res) => {
     // Foto enviada pelo multer
     const foto = req.file ? req.file.filename : null;
 
-    // ⚠️ TEMPORÁRIO: até o login estar pronto
+    // âš ï¸ TEMPORÃRIO: atÃ© o login estar pronto
     const id_usuario = 1;
 
     const [result] = await db.query(
@@ -47,7 +47,7 @@ export const buscarPet = async (req, res) => {
     const [rows] = await db.query("SELECT * FROM pets WHERE id = ?", [id]);
 
     if (rows.length === 0)
-      return res.status(404).json({ error: "Pet não encontrado." });
+      return res.status(404).json({ error: "Pet nÃ£o encontrado." });
 
     res.json(rows[0]);
   } catch (error) {
