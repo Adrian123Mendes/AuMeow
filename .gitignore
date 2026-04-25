@@ -1,3 +1,8 @@
 node_modules/
 beckend/node_modules/
 supabase-demo/node_modules/
+.env
+*.env
+!.env.example
+!*.env.example
+beckend/.env
