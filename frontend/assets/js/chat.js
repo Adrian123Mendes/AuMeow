@@ -42,14 +42,23 @@ async function sendChatMessage() {
     container.scrollTop = container.scrollHeight;
 
     try {
-        const response = await fetch(buildApiUrl("/api/ia/chat"), {
+        const response = await apiFetch("/api/ia/chat", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ message })
         });
 
         if (!response.ok) {
-            throw new Error(`Erro HTTP ${response.status}`);
+            let apiError = `Erro HTTP ${response.status}`;
+
+            try {
+                const data = await response.json();
+                apiError = data?.details || data?.error || apiError;
+            } catch {
+                // Mantem o erro padrao se a resposta nao vier em JSON.
+            }
+
+            throw new Error(apiError);
         }
 
         const data = await response.json();
@@ -57,7 +66,7 @@ async function sendChatMessage() {
         addMessageToChat(data.reply || "Sem resposta.", "bot");
     } catch (error) {
         loading.remove();
-        addMessageToChat("Desculpe, eu estou com dificuldade para responder agora.", "bot");
+        addMessageToChat(`Desculpe, eu nao consegui responder agora. ${error.message}`, "bot");
         console.error("Erro ao conectar com IA:", error);
     }
 }

@@ -1,4 +1,13 @@
  function nav(screenId) {
+            if (
+                typeof window.requiresAuthScreen === "function" &&
+                window.requiresAuthScreen(screenId) &&
+                typeof window.isAuthenticated === "function" &&
+                !window.isAuthenticated()
+            ) {
+                screenId = "login";
+            }
+
             // Esconde todas as telas
             document.querySelectorAll('.screen').forEach(el => el.classList.add('hidden'));
             

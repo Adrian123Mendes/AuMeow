@@ -3,12 +3,19 @@ console.log("lembretes.js carregado!");
 const API_LEMBRETES = buildApiUrl("/api/lembretes");
 const listaLembretes = document.getElementById("listaLembretes");
 const dashboardPlaceholder = document.getElementById("dashboardNextReminder");
+const reminderBellButton = document.getElementById("reminderBellButton");
+const reminderBellBadge = document.getElementById("reminderBellBadge");
+const remindersTotalCount = document.getElementById("remindersTotalCount");
+const remindersTodayCount = document.getElementById("remindersTodayCount");
+const remindersUpcomingCount = document.getElementById("remindersUpcomingCount");
 
 let lembreteEditando = null;
+let reminderNotifications = [];
+let reminderNotificationsPanel = null;
 
 async function fetchLembretes() {
     try {
-        const res = await fetch(API_LEMBRETES);
+        const res = await apiFetch("/api/lembretes");
         if (!res.ok) throw new Error("Erro ao buscar lembretes: " + res.status);
         return await res.json();
     } catch (err) {
@@ -17,34 +24,237 @@ async function fetchLembretes() {
     }
 }
 
+function getReminderNotificationItems(lembretes) {
+    const hoje = new Date();
+    const hojeBase = new Date(hoje.toDateString());
+
+    return lembretes
+        .map((item) => {
+            const data = new Date(item.data_hora);
+            const diff = Math.ceil((data - hojeBase) / (1000 * 60 * 60 * 24));
+
+            return {
+                ...item,
+                diff
+            };
+        })
+        .filter((item) => item.diff >= 0 && item.diff <= 1)
+        .sort((a, b) => new Date(a.data_hora) - new Date(b.data_hora));
+}
+
+function ensureReminderNotificationsPanel() {
+    if (reminderNotificationsPanel || !reminderBellButton) return reminderNotificationsPanel;
+
+    reminderNotificationsPanel = document.createElement("div");
+    reminderNotificationsPanel.id = "reminderNotificationsPanel";
+    reminderNotificationsPanel.className = "hidden absolute right-0 top-14 z-40 w-[320px] rounded-[24px] border border-gray-100 bg-white p-3 shadow-2xl";
+    reminderNotificationsPanel.innerHTML = `
+        <div class="mb-2 flex items-center justify-between px-2 pt-1">
+            <h3 class="font-heading text-sm font-bold text-gray-800">Notificacoes</h3>
+            <button type="button" data-close-notifications class="rounded-full p-2 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <div id="reminderNotificationsContent" class="max-h-80 overflow-y-auto"></div>
+    `;
+
+    const headerActions = reminderBellButton.parentElement;
+    if (headerActions) {
+        headerActions.classList.add("relative");
+        headerActions.appendChild(reminderNotificationsPanel);
+    }
+
+    reminderNotificationsPanel
+        .querySelector("[data-close-notifications]")
+        .addEventListener("click", () => reminderNotificationsPanel.classList.add("hidden"));
+
+    return reminderNotificationsPanel;
+}
+
+function renderReminderNotificationsPanel() {
+    const panel = ensureReminderNotificationsPanel();
+    if (!panel) return;
+
+    const content = panel.querySelector("#reminderNotificationsContent");
+    if (!content) return;
+
+    if (!reminderNotifications.length) {
+        content.innerHTML = `
+            <div class="rounded-2xl bg-gray-50 px-4 py-5 text-sm text-gray-500">
+                Nenhum lembrete proximo no momento.
+            </div>
+        `;
+        return;
+    }
+
+    content.innerHTML = reminderNotifications
+        .map((item) => {
+            const isHoje = item.diff === 0;
+            const iconClass = item.tipo === "vacina" ? "fa-solid fa-syringe" : "fa-solid fa-bag-shopping";
+            const iconColors = item.tipo === "vacina"
+                ? "bg-red-100 text-red-500"
+                : "bg-green-100 text-green-500";
+            const urgencyText = isHoje ? "Para hoje" : "Para amanha";
+
+            return `
+                <button
+                    type="button"
+                    data-reminder-notification
+                    class="mb-2 flex w-full items-start gap-3 rounded-2xl px-3 py-3 text-left transition hover:bg-gray-50"
+                >
+                    <div class="${iconColors} mt-0.5 flex h-10 w-10 items-center justify-center rounded-2xl">
+                        <i class="${iconClass}"></i>
+                    </div>
+                    <div class="flex-1">
+                        <div class="flex items-center justify-between gap-3">
+                            <p class="font-bold text-gray-800">${escapeHTML(item.titulo)}</p>
+                            <span class="rounded-full bg-orange-100 px-2 py-1 text-[10px] font-bold uppercase text-brand-orange">
+                                ${urgencyText}
+                            </span>
+                        </div>
+                        <p class="mt-1 text-xs text-gray-500">
+                            ${formatarData(item.data_hora)}${item.local_evento ? ` - ${escapeHTML(item.local_evento)}` : ""}
+                        </p>
+                    </div>
+                </button>
+            `;
+        })
+        .join("");
+
+    content.querySelectorAll("[data-reminder-notification]").forEach((button) => {
+        button.addEventListener("click", () => {
+            panel.classList.add("hidden");
+            nav("reminders");
+            setTimeout(() => carregarLembretesPagina(), 30);
+        });
+    });
+}
+
+function updateReminderNotifications(lembretes) {
+    reminderNotifications = getReminderNotificationItems(lembretes);
+
+    if (reminderBellBadge) {
+        reminderBellBadge.classList.toggle("hidden", reminderNotifications.length === 0);
+    }
+
+    renderReminderNotificationsPanel();
+}
+
+async function refreshReminderNotifications() {
+    const lembretes = await fetchLembretes();
+    updateReminderNotifications(lembretes);
+    return lembretes;
+}
+
+function toggleReminderNotificationsPanel() {
+    const panel = ensureReminderNotificationsPanel();
+    if (!panel) return;
+
+    const willOpen = panel.classList.contains("hidden");
+    panel.classList.toggle("hidden");
+
+    if (willOpen) {
+        refreshReminderNotifications();
+    }
+}
+
+function getReminderTypeMeta(tipo) {
+    if (tipo === "vacina") {
+        return {
+            label: "Vacina",
+            iconClass: "fa-solid fa-syringe",
+            badgeClass: "bg-[#fff1f0] text-[#c65b52]",
+            iconWrapperClass: "bg-[#ffe4e1] text-[#d25b52]"
+        };
+    }
+
+    return {
+        label: "Compra",
+        iconClass: "fa-solid fa-bag-shopping",
+        badgeClass: "bg-[#eefbf6] text-[#2e8b62]",
+        iconWrapperClass: "bg-[#dcf7eb] text-[#24885e]"
+    };
+}
+
+function updateReminderSummary(lembretes) {
+    const hoje = new Date();
+    const hojeBase = new Date(hoje.toDateString());
+    const amanhaBase = new Date(hojeBase.getTime() + 24 * 60 * 60 * 1000);
+
+    const total = lembretes.length;
+    const todayCount = lembretes.filter((item) => {
+        const data = new Date(item.data_hora);
+        return data >= hojeBase && data < amanhaBase;
+    }).length;
+    const upcomingCount = lembretes.filter((item) => new Date(item.data_hora) >= amanhaBase).length;
+
+    if (remindersTotalCount) remindersTotalCount.textContent = String(total);
+    if (remindersTodayCount) remindersTodayCount.textContent = String(todayCount);
+    if (remindersUpcomingCount) remindersUpcomingCount.textContent = String(upcomingCount);
+}
+
 async function carregarLembretesPagina() {
     const lembretes = await fetchLembretes();
     if (!listaLembretes) return;
 
+    updateReminderSummary(lembretes);
     listaLembretes.innerHTML = "";
 
+    if (!lembretes.length) {
+        listaLembretes.innerHTML = `
+            <div class="dashboard-card rounded-[30px] p-8 text-center">
+                <div class="mx-auto flex h-16 w-16 items-center justify-center rounded-3xl bg-[#fff1e2] text-2xl text-[var(--pet-coral)]">
+                    <i class="fa-regular fa-bell"></i>
+                </div>
+                <h3 class="mt-4 font-heading text-2xl font-bold text-[var(--pet-ink)]">Nenhum lembrete cadastrado</h3>
+                <p class="mt-2 text-sm text-[var(--pet-brown)]">
+                    Crie seu primeiro lembrete para acompanhar vacinas, compras e compromissos importantes.
+                </p>
+                <button type="button" onclick="abrirModalCriarLembrete()" class="mt-6 inline-flex items-center gap-2 rounded-2xl bg-[var(--pet-coral)] px-5 py-3 font-bold text-white shadow-lg transition hover:scale-[1.02]">
+                    <i class="fa-solid fa-plus"></i> Novo lembrete
+                </button>
+            </div>
+        `;
+        return;
+    }
+
     lembretes.forEach((item) => {
+        const meta = getReminderTypeMeta(item.tipo);
         const card = document.createElement("div");
-        card.className = "bg-white rounded-3xl p-1 shadow-sm flex items-center justify-between mb-4";
+        card.className = "dashboard-card rounded-[30px] p-5";
 
         card.innerHTML = `
-            <div class="bg-white p-4 rounded-2xl shadow-sm border-l-4 ${item.tipo === "vacina" ? "border-red-500 hover:bg-red-50" : "border-green-500 hover:bg-green-50"} flex justify-between items-center group transition w-full">
-                <div class="flex gap-4 items-center">
-                    <div class="${item.tipo === "vacina" ? "bg-red-100 text-red-500" : "bg-green-100 text-green-500"} w-12 h-12 rounded-full flex items-center justify-center">
-                        <i class="${item.tipo === "vacina" ? "fa-solid fa-syringe" : "fa-solid fa-bowl-food"}"></i>
+            <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                <div class="flex items-start gap-4">
+                    <div class="${meta.iconWrapperClass} flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl">
+                        <i class="${meta.iconClass}"></i>
                     </div>
-                    <div>
-                        <h4 class="font-bold text-gray-800">${escapeHTML(item.titulo)}</h4>
-                        <p class="text-xs text-gray-500">
-                            ${formatarDataRelativo(item.data_hora)} • ${escapeHTML(item.local_evento || "")}
-                        </p>
+                    <div class="min-w-0 flex-1">
+                        <div class="flex flex-wrap items-center gap-2">
+                            <span class="rounded-full px-3 py-1 text-[10px] font-bold uppercase tracking-[0.18em] ${meta.badgeClass}">
+                                ${meta.label}
+                            </span>
+                            <span class="text-[11px] font-bold uppercase tracking-[0.16em] text-[#9c7a63]">
+                                ${formatarDataRelativo(item.data_hora)}
+                            </span>
+                        </div>
+                        <h4 class="mt-3 font-heading text-xl font-bold text-[var(--pet-ink)]">${escapeHTML(item.titulo)}</h4>
+                        <div class="mt-2 grid gap-2 text-sm text-[var(--pet-brown)] sm:grid-cols-2">
+                            <p class="rounded-2xl bg-[#fff8ef] px-3 py-2">
+                                <i class="fa-regular fa-clock mr-2 text-[var(--pet-coral)]"></i>${formatarData(item.data_hora)}
+                            </p>
+                            <p class="rounded-2xl bg-[#fff8ef] px-3 py-2">
+                                <i class="fa-solid fa-location-dot mr-2 text-[var(--pet-coral)]"></i>${escapeHTML(item.local_evento || "Sem local definido")}
+                            </p>
+                        </div>
+                        ${item.descricao ? `<p class="mt-3 text-sm leading-relaxed text-[var(--pet-brown)]">${escapeHTML(item.descricao)}</p>` : ""}
                     </div>
                 </div>
-                <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition">
-                    <button type="button" class="btn-editar-lembrete text-blue-500 p-2" aria-label="Editar lembrete">
+                <div class="flex gap-2 md:self-start">
+                    <button type="button" class="btn-editar-lembrete flex h-10 w-10 items-center justify-center rounded-full bg-[#f3f0ff] text-brand-purple transition hover:bg-brand-purple hover:text-white" aria-label="Editar lembrete">
                         <i class="fa-solid fa-pen"></i>
                     </button>
-                    <button type="button" class="btn-excluir-lembrete text-red-500 p-2" aria-label="Excluir lembrete">
+                    <button type="button" class="btn-excluir-lembrete flex h-10 w-10 items-center justify-center rounded-full bg-[#fff1f0] text-[#d25b52] transition hover:bg-[#d25b52] hover:text-white" aria-label="Excluir lembrete">
                         <i class="fa-solid fa-trash"></i>
                     </button>
                 </div>
@@ -67,6 +277,7 @@ async function atualizarDashboardNextReminder() {
     if (!dashboardPlaceholder) return;
 
     const lembretes = await fetchLembretes();
+    updateReminderNotifications(lembretes);
     dashboardPlaceholder.innerHTML = "";
 
     const primeiro = lembretes.length ? lembretes[0] : null;
@@ -153,14 +364,25 @@ function escapeHTML(s) {
 }
 
 async function deletarLembrete(id) {
-    if (!confirm("Tem certeza que deseja excluir?")) return;
+    const confirmed = await showPetConfirm("Tem certeza que deseja excluir o lembrete?", {
+        title: "Excluir lembrete",
+        confirmLabel: "Excluir",
+        cancelLabel: "Manter",
+        iconClass: "fa-solid fa-trash"
+    });
+    if (!confirmed) return;
 
-    await fetch(`${API_LEMBRETES}/${id}`, {
+    await apiFetch(`/api/lembretes/${id}`, {
         method: "DELETE"
     });
 
     carregarLembretesPagina();
     atualizarDashboardNextReminder();
+    refreshReminderNotifications();
+    showPetToast("Lembrete excluido com sucesso.", {
+        title: "Lembrete removido",
+        iconClass: "fa-solid fa-trash"
+    });
 }
 
 function abrirModalEditarLembrete(item) {
@@ -191,12 +413,16 @@ async function salvarEdicaoLembrete() {
     };
 
     if (!atualizado.titulo || !atualizado.tipo || !atualizado.dataHora) {
-        alert("Preencha titulo, tipo e data!");
+        showPetToast("Preencha titulo, tipo e data antes de salvar.", {
+            title: "Campos obrigatorios",
+            iconClass: "fa-solid fa-circle-exclamation",
+            iconWrapperClass: "bg-red-100 text-red-500"
+        });
         return;
     }
 
     try {
-        await fetch(`${API_LEMBRETES}/${lembreteEditando.id}`, {
+        await apiFetch(`/api/lembretes/${lembreteEditando.id}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(atualizado)
@@ -205,9 +431,14 @@ async function salvarEdicaoLembrete() {
         fecharModalEditarLembrete();
         carregarLembretesPagina();
         atualizarDashboardNextReminder();
+        refreshReminderNotifications();
     } catch (err) {
         console.error(err);
-        alert("Erro ao atualizar lembrete");
+        showPetToast("Nao foi possivel atualizar o lembrete.", {
+            title: "Erro na edicao",
+            iconClass: "fa-solid fa-triangle-exclamation",
+            iconWrapperClass: "bg-red-100 text-red-500"
+        });
     }
 }
 
@@ -227,25 +458,47 @@ async function salvarLembrete() {
     const descricao = document.getElementById("descricaoLembrete").value.trim();
 
     if (!titulo || !tipo || !dataHora) {
-        alert("Preencha titulo, tipo e data!");
+        showPetToast("Preencha titulo, tipo e data antes de cadastrar.", {
+            title: "Campos obrigatorios",
+            iconClass: "fa-solid fa-circle-exclamation",
+            iconWrapperClass: "bg-red-100 text-red-500"
+        });
         return;
     }
 
-    await fetch(API_LEMBRETES, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-            titulo,
-            tipo,
-            dataHora,
-            localEvento,
-            descricao
-        })
-    });
+    try {
+        const response = await apiFetch("/api/lembretes", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+                titulo,
+                tipo,
+                dataHora,
+                localEvento,
+                descricao
+            })
+        });
 
-    fecharModalCriarLembrete();
-    carregarLembretesPagina();
-    atualizarDashboardNextReminder();
+        if (!response.ok) {
+            throw new Error(`Erro HTTP ${response.status}`);
+        }
+
+        fecharModalCriarLembrete();
+        carregarLembretesPagina();
+        atualizarDashboardNextReminder();
+        refreshReminderNotifications();
+        showPetToast("Lembrete cadastrado com sucesso.", {
+            title: "Lembrete criado",
+            iconClass: "fa-solid fa-bell"
+        });
+    } catch (err) {
+        console.error(err);
+        showPetToast("Nao foi possivel cadastrar o lembrete.", {
+            title: "Erro no cadastro",
+            iconClass: "fa-solid fa-triangle-exclamation",
+            iconWrapperClass: "bg-red-100 text-red-500"
+        });
+    }
 }
 
 window.carregarLembretesPagina = carregarLembretesPagina;
@@ -257,10 +510,26 @@ window.abrirModalCriarLembrete = abrirModalCriarLembrete;
 window.fecharModalCriarLembrete = fecharModalCriarLembrete;
 window.salvarLembrete = salvarLembrete;
 
+if (reminderBellButton) {
+    reminderBellButton.addEventListener("click", (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+        toggleReminderNotificationsPanel();
+    });
+}
+
+document.addEventListener("click", (event) => {
+    if (!reminderNotificationsPanel || reminderNotificationsPanel.classList.contains("hidden")) return;
+    if (reminderNotificationsPanel.contains(event.target) || reminderBellButton?.contains(event.target)) return;
+    reminderNotificationsPanel.classList.add("hidden");
+});
+
 document.addEventListener("DOMContentLoaded", () => {
     if (dashboardPlaceholder) {
         atualizarDashboardNextReminder();
     }
+
+    refreshReminderNotifications();
 
     const paginaLembretes = document.getElementById("reminders");
     if (paginaLembretes && !paginaLembretes.classList.contains("hidden")) {

@@ -29,6 +29,10 @@ CREATE TABLE IF NOT EXISTS lembretes (
   data_hora DATETIME NOT NULL,
   local_evento VARCHAR(255),
   descricao TEXT,
+  id_usuario INT NOT NULL,
+  CONSTRAINT fk_lembretes_usuario
+    FOREIGN KEY (id_usuario) REFERENCES usuarios(id)
+    ON DELETE CASCADE,
   criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 

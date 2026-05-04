@@ -35,9 +35,10 @@ Valores esperados no `beckend/.env`:
 ```env
 PORT=3000
 DB_HOST=localhost
+DB_PORT=3307
 OLLAMA_HOST=http://localhost:11435
 DB_USER=root
-DB_PASSWORD=
+DB_PASSWORD=root
 DB_NAME=aumeow
 JWT_SECRET=troque_esta_chave_por_uma_chave_segura
 ```
@@ -53,16 +54,36 @@ docker compose up -d
 Configuracao atual do banco:
 
 - host: `localhost`
-- porta: `3306`
+- porta externa: `3307`
+- porta interna do container: `3306`
 - banco: `aumeow`
 - usuario: `root`
-- senha: vazia
+- senha: `root`
+
+Se o seu arquivo `beckend/.env` ja existe, confira pelo menos estes campos:
+
+```env
+DB_HOST=localhost
+DB_PORT=3307
+DB_USER=root
+DB_PASSWORD=root
+DB_NAME=aumeow
+```
 
 ## Usuario demo
 
 O schema cria um usuario inicial com o email `demo@aumeow.local`.
 
 A senha em texto puro nao esta documentada no repositorio. Se voce precisar testar o login em outra maquina, o caminho mais seguro e atualizar esse usuario direto no banco ou inserir um novo usuario com uma senha conhecida.
+
+## Reinicializar o banco
+
+Se voce ja tinha subido o container antigo com senha vazia, recrie o volume para aplicar a nova configuracao e rodar o schema novamente:
+
+```powershell
+docker compose down -v
+docker compose up -d
+```
 
 ## Executar o backend
 

@@ -40,6 +40,15 @@
     </script>
 
     <style>
+        :root {
+            --pet-cream: #fffaf4;
+            --pet-card: rgba(255, 252, 247, 0.96);
+            --pet-coral: #f97316;
+            --pet-ink: #33211a;
+            --pet-brown: #6b4f3d;
+            --pet-teal: #0f766e;
+        }
+
         /* Estilos Customizados */
         body {
             background-color: #F3F4F6;
@@ -116,6 +125,24 @@
   transform: rotateY(180deg);
 }
 
+.dashboard-shell {
+  background:
+    radial-gradient(circle at top left, rgba(249, 115, 22, 0.14), transparent 28%),
+    radial-gradient(circle at top right, rgba(15, 118, 110, 0.12), transparent 24%),
+    linear-gradient(180deg, #fffaf4 0%, #fff2e2 100%);
+}
+
+.dashboard-card {
+  background: var(--pet-card);
+  border: 1px solid rgba(222, 196, 163, 0.45);
+  box-shadow: 0 20px 45px -28px rgba(91, 56, 30, 0.28);
+}
+
+.dashboard-chip {
+  background: rgba(255, 237, 213, 0.92);
+  color: var(--pet-coral);
+}
+
     </style>
 </head>
 <body class="text-gray-600 h-screen flex flex-col overflow-hidden">
@@ -124,16 +151,9 @@
     <!-- BARRA DE NAVEGAÇÃO DEV (Para testar as telas) -->
     <!-- ================================================================== -->
     <div class="bg-gray-900 text-white text-xs py-2 px-4 flex gap-4 overflow-x-auto whitespace-nowrap z-50 shrink-0">
-        <span class="font-bold text-brand-orange">DEV NAV:</span>
+        <span class="font-bold text-brand-orange">NAV:</span>
         <button onclick="nav('login')" class="hover:text-brand-orange">Login</button>
         <button onclick="nav('register')" class="hover:text-brand-orange">Cadastro</button>
-        <button onclick="nav('dashboard')" class="hover:text-brand-orange">Dashboard</button>
-        <button onclick="nav('pet-register')" class="hover:text-brand-orange">Novo Pet</button>
-        <button onclick="nav('reminders')" class="hover:text-brand-orange">Lembretes</button>
-        <button onclick="nav('adoption')" class="hover:text-brand-orange">Adoção</button>
-        <button onclick="nav('social')" class="hover:text-brand-orange">Chat Social</button>
-        <button onclick="nav('report')" class="hover:text-brand-orange">Denúncia</button>
-        <button onclick="nav('admin')" class="hover:text-brand-purple font-bold">Admin Area</button>
     </div>
 
     <!-- ================================================================== -->
@@ -152,21 +172,21 @@
                 <h1 class="font-heading text-3xl font-bold text-gray-800 mb-2">AuMeow</h1>
                 <p class="text-gray-500 mb-8">Bem-vindo de volta, humano!</p>
 
-                <form class="space-y-4 text-left">
+                <form id="loginForm" class="space-y-4 text-left">
                     <div>
                         <label class="block text-xs font-bold text-gray-500 ml-1 mb-1 uppercase">E-mail</label>
-                        <input type="email" placeholder="exemplo@aumeow.com" class="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-purple/50 transition">
+                        <input id="loginEmail" name="email" type="email" placeholder="exemplo@aumeow.com" class="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-purple/50 transition">
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-gray-500 ml-1 mb-1 uppercase">Senha</label>
-                        <input type="password" placeholder="••••••••" class="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-purple/50 transition">
+                        <input id="loginSenha" name="senha" type="password" placeholder="Digite sua senha" class="w-full p-4 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-purple/50 transition">
                     </div>
                     
                     <div class="flex justify-end">
                         <a href="#" class="text-sm text-brand-purple hover:underline font-medium">Esqueci minha senha</a>
                     </div>
 
-                    <button type="button" onclick="nav('dashboard')" class="btn-primary w-full py-4 text-white font-bold rounded-xl text-lg shadow-lg">
+                    <button type="submit" class="btn-primary w-full py-4 text-white font-bold rounded-xl text-lg shadow-lg">
                         Entrar
                     </button>
                 </form>
@@ -185,27 +205,27 @@
                     <p class="text-gray-400 text-sm">Junte-se à maior comunidade pet</p>
                 </div>
 
-                <form class="space-y-4">
+                <form id="registerForm" class="space-y-4">
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <input type="text" placeholder="Nome Completo" class="w-full p-3 bg-gray-50 border-gray-100 border rounded-xl focus:ring-2 focus:ring-brand-orange/30 outline-none">
-                        <input type="text" placeholder="Telefone" class="w-full p-3 bg-gray-50 border-gray-100 border rounded-xl focus:ring-2 focus:ring-brand-orange/30 outline-none">
+                        <input id="registerNome" name="nome" type="text" placeholder="Nome Completo" class="w-full p-3 bg-gray-50 border-gray-100 border rounded-xl focus:ring-2 focus:ring-brand-orange/30 outline-none">
+                        <input id="registerTelefone" name="telefone" type="text" placeholder="Telefone" class="w-full p-3 bg-gray-50 border-gray-100 border rounded-xl focus:ring-2 focus:ring-brand-orange/30 outline-none">
                     </div>
-                    <input type="email" placeholder="E-mail" class="w-full p-3 bg-gray-50 border-gray-100 border rounded-xl focus:ring-2 focus:ring-brand-orange/30 outline-none">
-                    <input type="email" placeholder="Confirmar E-mail" class="w-full p-3 bg-gray-50 border-gray-100 border rounded-xl focus:ring-2 focus:ring-brand-orange/30 outline-none">
+                    <input id="registerEmail" name="email" type="email" placeholder="E-mail" class="w-full p-3 bg-gray-50 border-gray-100 border rounded-xl focus:ring-2 focus:ring-brand-orange/30 outline-none">
+                    <input id="registerEmailConfirm" name="emailConfirm" type="email" placeholder="Confirmar E-mail" class="w-full p-3 bg-gray-50 border-gray-100 border rounded-xl focus:ring-2 focus:ring-brand-orange/30 outline-none">
                     
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <input type="password" placeholder="Senha" class="w-full p-3 bg-gray-50 border-gray-100 border rounded-xl focus:ring-2 focus:ring-brand-orange/30 outline-none">
-                        <input type="password" placeholder="Confirmar Senha" class="w-full p-3 bg-gray-50 border-gray-100 border rounded-xl focus:ring-2 focus:ring-brand-orange/30 outline-none">
+                        <input id="registerSenha" name="senha" type="password" placeholder="Senha" class="w-full p-3 bg-gray-50 border-gray-100 border rounded-xl focus:ring-2 focus:ring-brand-orange/30 outline-none">
+                        <input id="registerSenhaConfirm" name="senhaConfirm" type="password" placeholder="Confirmar Senha" class="w-full p-3 bg-gray-50 border-gray-100 border rounded-xl focus:ring-2 focus:ring-brand-orange/30 outline-none">
                     </div>
 
                     <div class="pt-4">
-                        <button type="button" onclick="nav('login')" class="btn-primary w-full py-4 text-white font-bold rounded-xl shadow-lg">
+                        <button type="submit" class="btn-primary w-full py-4 text-white font-bold rounded-xl shadow-lg">
                             Cadastrar
                         </button>
                     </div>
                 </form>
                 <div class="mt-6 text-center">
-                    <button onclick="nav('login')" class="text-sm text-gray-400 hover:text-gray-600">Voltar para Login</button>
+                    <button type="button" onclick="nav('login')" class="text-sm text-gray-400 hover:text-gray-600">Voltar para Login</button>
                 </div>
             </div>
         </section>
@@ -216,48 +236,89 @@
             <header class="bg-white p-6 sticky top-0 z-30 shadow-sm flex justify-between items-center rounded-b-3xl">
                 <div class="flex items-center gap-4">
                     <div class="relative">
-                        <img src="https://i.pravatar.cc/150?img=32" alt="Avatar" class="w-14 h-14 rounded-full border-2 border-brand-purple p-1">
+                        <div id="dashboardUserAvatar" aria-label="Avatar do usuario" class="flex h-14 w-14 items-center justify-center rounded-full border-2 border-brand-purple bg-gradient-to-br from-brand-purple to-brand-orange p-1 font-heading text-lg font-bold text-white">AU</div>
                         <div class="absolute bottom-0 right-0 w-4 h-4 bg-green-500 rounded-full border-2 border-white"></div>
                     </div>
                     <div>
-                        <h2 class="font-heading font-bold text-gray-800 text-lg">Olá, Marina!</h2>
-                        <p class="text-xs text-gray-500 flex items-center gap-1">
-                            <i class="fa-solid fa-dog text-brand-orange"></i> Mãe do Cachaça
+                        <h2 id="dashboardUserGreeting" class="font-heading font-bold text-gray-800 text-lg">Ola!</h2>
+                        <p id="dashboardUserMeta" class="text-xs text-gray-500 flex items-center gap-1">
+                            <i class="fa-solid fa-paw text-brand-orange"></i> Usuario conectado
                         </p>
                     </div>
                 </div>
                 <div class="flex gap-3">
-                    <button onclick="nav('social')" class="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center text-gray-600 hover:bg-brand-purple hover:text-white transition relative">
-                        <i class="fa-regular fa-comment"></i>
-                        <span class="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full"></span>
-                    </button>
-                    <button class="w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center text-gray-600 hover:bg-brand-orange hover:text-white transition">
+                    <button id="reminderBellButton" class="relative w-10 h-10 bg-gray-50 rounded-full flex items-center justify-center text-gray-600 hover:bg-brand-orange hover:text-white transition">
                         <i class="fa-regular fa-bell"></i>
+                        <span id="reminderBellBadge" class="hidden absolute top-2 right-2 min-w-[8px] h-2 rounded-full bg-red-500"></span>
                     </button>
                 </div>
             </header>
 
-            <div class="p-6 max-w-5xl mx-auto space-y-8 fade-in">
-                
-                <!-- Seção Meus Pets (NOVO) -->
-                <div>
-                    <div class="flex items-center justify-between mb-3 px-1">
-                        <h3 class="font-heading font-bold text-gray-800">Meus Pets</h3>
-                        <button onclick="nav('pet-register')" class="text-xs text-brand-purple font-bold hover:bg-purple-50 px-3 py-1.5 rounded-lg transition border border-transparent hover:border-purple-100 flex items-center gap-1">
-                            <i class="fa-solid fa-plus"></i> Adicionar
-                        </button>
+            <div class="dashboard-shell p-6 max-w-5xl mx-auto space-y-8 fade-in rounded-[32px]">
+
+                <section class="grid gap-5 lg:grid-cols-[1.35fr_0.95fr]">
+                    <div class="dashboard-card rounded-[30px] p-6">
+                        <div class="flex items-start justify-between gap-4 mb-5">
+                            <div>
+                                <span class="dashboard-chip inline-flex items-center gap-2 px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-[0.18em]">
+                                    <i class="fa-solid fa-paw"></i> Rotina pet
+                                </span>
+                                <h3 class="font-heading font-bold text-3xl text-[var(--pet-ink)] mt-3">Tudo o que seus companheiros precisam, em um so lugar</h3>
+                                <p class="text-sm text-[var(--pet-brown)] mt-2 max-w-xl">Acompanhe seus pets, mantenha a rotina organizada e acesse os servicos principais com uma cara mais proxima de um app pet de verdade.</p>
+                            </div>
+                        </div>
+
+                        <div class="grid gap-4 sm:grid-cols-1">
+                            <button type="button" onclick="nav('pet-register')" class="rounded-[26px] border border-orange-200 bg-gradient-to-br from-orange-50 to-white p-5 text-left transition hover:shadow-md">
+                                <div class="w-12 h-12 rounded-2xl bg-[var(--pet-coral)] text-white flex items-center justify-center text-xl mb-4">
+                                    <i class="fa-solid fa-paw"></i>
+                                </div>
+                                <p class="font-bold text-[var(--pet-ink)]">Cadastrar pet</p>
+                                <p class="text-sm text-[var(--pet-brown)] mt-1">Adicione rapidamente um novo companheiro com foto, raca e aniversario.</p>
+                            </button>
+                        </div>
                     </div>
-                    <div id="dashboardPetsList" class="flex gap-4 overflow-x-auto hide-scroll pb-4 -mx-2 px-2"></div>
 
+                    <div class="space-y-4">
+                        <div id="dashboardNextReminder" class="min-h-[84px]"></div>
+                        <div class="dashboard-card rounded-[30px] p-5">
+                            <div class="flex items-center justify-between mb-4">
+                                <h3 class="font-heading font-bold text-[var(--pet-ink)]">Acesso rapido</h3>
+                                <span class="text-[11px] font-bold uppercase tracking-[0.18em] text-[#9c7a63]">Hoje</span>
+                            </div>
+                            <div class="grid grid-cols-2 gap-3">
+                                <button type="button" onclick="nav('reminders')" class="rounded-[24px] bg-[#fff1e2] px-4 py-4 text-left transition hover:bg-[#ffe6cc]">
+                                    <i class="fa-solid fa-bell text-[var(--pet-coral)] text-lg"></i>
+                                    <p class="font-bold text-[var(--pet-ink)] mt-3">Lembretes</p>
+                                    <p class="text-xs text-[var(--pet-brown)] mt-1">Vacinas, compras e rotina</p>
+                                </button>
+                                <button type="button" onclick="nav('social')" class="rounded-[24px] bg-[#e8f7f5] px-4 py-4 text-left transition hover:bg-[#d6f0ec]">
+                                    <i class="fa-solid fa-comments text-[var(--pet-teal)] text-lg"></i>
+                                    <p class="font-bold text-[var(--pet-ink)] mt-3">Social</p>
+                                    <p class="text-xs text-[var(--pet-brown)] mt-1">Converse com a comunidade</p>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
 
+                <section class="dashboard-card rounded-[30px] p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <h3 class="font-heading font-bold text-[var(--pet-ink)] text-xl">Meus Pets</h3>
+                            <p class="text-sm text-[var(--pet-brown)] mt-1">Os perfis cadastrados ficam organizados aqui, com foco no cuidado diario.</p>
+                        </div>
+                    </div>
+                    <div id="dashboardPetsList" class="flex gap-4 overflow-x-auto hide-scroll pb-2 -mx-2 px-2"></div>
+                </section>
 
-                <!-- Card de Lembrete Urgente (dinâmico) -->
-              <div id="dashboardNextReminder" class="min-h-[84px]">
- </div>
-
-                <!-- Menu Grid -->
-                <div>
-                    <h3 class="font-heading font-bold text-gray-800 mb-4 px-1">O que você precisa?</h3>
+                <section class="dashboard-card rounded-[30px] p-6">
+                    <div class="flex items-center justify-between mb-5">
+                        <div>
+                            <h3 class="font-heading font-bold text-[var(--pet-ink)] text-xl">Explorar cuidados e servicos</h3>
+                            <p class="text-sm text-[var(--pet-brown)] mt-1">Atalhos pensados para a rotina de quem cuida de pets de verdade.</p>
+                        </div>
+                    </div>
                     <div class="grid grid-cols-3 md:grid-cols-6 gap-4">
                         <!-- Botão Saúde -->
                         <div class="flex flex-col items-center gap-2 group cursor-pointer"
@@ -305,7 +366,7 @@
                             <span class="text-xs font-medium text-gray-500">Lembrete</span>
                         </div>
                     </div>
-                </div>
+                </section>
 
                 <!-- Seção Serviços (Scroll Horizontal) -->
                 <div>
@@ -313,12 +374,11 @@
                         Serviços parceiros
                         <span class="text-xs text-brand-purple cursor-pointer">Ver todos</span>
                     </h3>
-                    <div class="flex gap-4 overflow-x-auto pb-4 hide-scroll">
-                        <!-- Card Serviço 1 -->
-                        <div class="flex flex-wrap gap-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+
 
     <!-- Banho e Tosa -->
-    <div class="bg-white p-4 rounded-2xl shadow-sm w-[260px]">
+    <div class="bg-white p-4 rounded-2xl shadow-sm">
         <img src="https://www.petlife.com.br/assets/652d9e26df697906ef1d8895/banner-credenciamento-mobile.jpg" class="w-full h-32 object-cover rounded-xl mb-3">
 
         <h4 class="font-bold text-gray-800">Pet life SPA</h4>
@@ -336,7 +396,7 @@
     </div>
 
     <!-- Hotelzinho -->
-    <div class="bg-white p-4 rounded-2xl shadow-sm w-[260px]">
+    <div class="bg-white p-4 rounded-2xl shadow-sm">
         <img src="assets/brasilia-pet-hotel.jpg" class="w-full h-32 object-cover rounded-xl mb-3">
 
         <h4 class="font-bold text-gray-800">Brasília pet hotel</h4>
@@ -354,7 +414,7 @@
     </div>
 
     <!-- Veterinário -->
-    <div class="bg-white p-4 rounded-2xl shadow-sm w-[260px]">
+    <div class="bg-white p-4 rounded-2xl shadow-sm">
         <img src="https://petcont.com.br/wp-content/uploads/2024/01/Reforma-Tributaria-no-Setor-Pet.jpg" class="w-full h-32 object-cover rounded-xl mb-3">
 
         <h4 class="font-bold text-gray-800">Animal Life</h4>
@@ -371,16 +431,15 @@
         </div>
     </div>
 
-</div>
+                    </div>
 
                 </div>
-            </div>
-        </section>
+            </section>
 
         <!-- 4. CADASTRO DE PET -->
-        <section id="pet-register" class="screen hidden p-6 max-w-4xl mx-auto h-full overflow-y-auto">
+        <section id="pet-register" class="screen hidden dashboard-shell p-6 max-w-4xl mx-auto h-full overflow-y-auto rounded-[32px]">
             <div class="flex items-center gap-4 mb-6">
-                <button onclick="nav('dashboard')" class="w-10 h-10 rounded-full bg-white shadow-sm flex items-center justify-center text-gray-600 hover:text-brand-orange">
+                <button type="button" onclick="nav('dashboard')" class="w-10 h-10 rounded-full bg-[var(--pet-card)] shadow-sm flex items-center justify-center text-gray-600 hover:text-brand-orange">
                     <i class="fa-solid fa-arrow-left"></i>
                 </button>
                 <h2 class="font-heading text-2xl font-bold text-gray-800">Novo Integrante</h2>
@@ -388,7 +447,7 @@
 
             <div class="flex flex-col md:flex-row gap-8">
                 <!-- Formulário -->
-                <div class="flex-1 space-y-5 bg-white p-6 rounded-3xl shadow-sm">
+                <div class="dashboard-card flex-1 space-y-5 p-6 rounded-3xl">
                     <div>
                         <label class="block text-xs font-bold text-gray-400 mb-1 ml-1 uppercase">Nome</label>
                         <input type="text" id="petNameInput" onkeyup="updatePetPreview()" placeholder="Ex: Pipoca" class="w-full p-3 bg-gray-50 rounded-xl border-none focus:ring-2 focus:ring-brand-purple">
@@ -431,7 +490,7 @@
                 <!-- Preview Card -->
                 <div class="w-full md:w-80">
                     <p class="text-xs font-bold text-gray-400 mb-2 uppercase text-center">Pré-visualização</p>
-                    <div class="bg-white p-6 rounded-[32px] shadow-glow text-center relative overflow-hidden transition-all duration-500">
+                    <div class="dashboard-card p-6 rounded-[32px] text-center relative overflow-hidden transition-all duration-500">
                         <div class="absolute top-0 left-0 w-full h-24 bg-gradient-to-r from-brand-orange/20 to-brand-purple/20"></div>
                         
                         <div class="w-28 h-28 mx-auto bg-gray-200 rounded-full border-4 border-white shadow-md relative z-10 bg-[url('https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&q=80&w=300')] bg-cover bg-center"></div>
@@ -454,36 +513,59 @@
 
           
         <!-- 5. TELA DE LEMBRETES -->
-<section id="reminders" class="screen hidden p-6 max-w-3xl mx-auto">
+<section id="reminders" class="screen hidden dashboard-shell p-6 max-w-5xl mx-auto rounded-[32px]">
 
-    <div class="flex justify-between items-center mb-8">
-        <div class="flex items-center gap-4">
-            <button onclick="nav('dashboard')" class="text-gray-400 hover:text-gray-600">
-                <i class="fa-solid fa-arrow-left text-xl"></i>
+    <div class="dashboard-card rounded-[30px] p-6 mb-6">
+        <div class="flex flex-col gap-5 md:flex-row md:items-start md:justify-between">
+            <div class="flex items-start gap-4">
+                <button type="button" onclick="nav('dashboard')" class="mt-1 flex h-10 w-10 items-center justify-center rounded-full bg-[var(--pet-card)] text-gray-500 shadow-sm transition hover:text-brand-orange">
+                    <i class="fa-solid fa-arrow-left text-sm"></i>
+                </button>
+                <div>
+                    <span class="dashboard-chip inline-flex items-center gap-2 px-3 py-1 rounded-full text-[11px] font-bold uppercase tracking-[0.18em]">
+                        <i class="fa-solid fa-bell"></i> Rotina
+                    </span>
+                    <h2 class="font-heading text-3xl font-bold text-[var(--pet-ink)] mt-3">Lembretes</h2>
+                    <p class="text-sm text-[var(--pet-brown)] mt-2 max-w-2xl">
+                        Organize vacinas, compras e compromissos do dia a dia em um unico lugar.
+                    </p>
+                </div>
+            </div>
+
+            <button type="button" onclick="abrirModalCriarLembrete()" 
+                    class="flex h-12 w-12 items-center justify-center rounded-2xl bg-[var(--pet-coral)] text-white shadow-lg transition hover:scale-105">
+                <i class="fa-solid fa-plus"></i>
             </button>
-
-            <h2 class="font-heading text-2xl font-bold text-gray-800">Dashboard</h2>
         </div>
 
-        <button onclick="abrirModalCriarLembrete()" 
-                class="w-12 h-12 bg-gray-900 text-white rounded-full shadow-lg hover:scale-110 transition flex items-center justify-center">
-            <i class="fa-solid fa-plus"></i>
-        </button>
+        <div class="mt-6 grid gap-3 sm:grid-cols-3">
+            <div class="rounded-[22px] border border-orange-100 bg-[#fff6ec] px-4 py-4">
+                <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-[#9c7a63]">Total</p>
+                <p id="remindersTotalCount" class="mt-2 font-heading text-3xl font-bold text-[var(--pet-ink)]">0</p>
+            </div>
+            <div class="rounded-[22px] border border-red-100 bg-[#fff1f0] px-4 py-4">
+                <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-[#b95c36]">Hoje</p>
+                <p id="remindersTodayCount" class="mt-2 font-heading text-3xl font-bold text-[var(--pet-ink)]">0</p>
+            </div>
+            <div class="rounded-[22px] border border-emerald-100 bg-[#eefbf6] px-4 py-4">
+                <p class="text-[11px] font-bold uppercase tracking-[0.18em] text-[#3f7f69]">Proximos</p>
+                <p id="remindersUpcomingCount" class="mt-2 font-heading text-3xl font-bold text-[var(--pet-ink)]">0</p>
+            </div>
+        </div>
     </div>
 
-    <div id="listaLembretes" class="lembrete-lista"></div>
+    <div id="listaLembretes" class="grid gap-4"></div>
 
 </section>
 
 
 
 
-        </section>
 
         <!-- 6. TELA DE DENÚNCIA -->
-        <section id="report" class="screen hidden min-h-full flex items-center justify-center p-6 bg-gray-100">
-            <div class="bg-white w-full max-w-md p-8 rounded-3xl shadow-xl text-center border-t-8 border-gray-800 fade-in">
-                <div class="w-20 h-20 bg-gray-200 rounded-full mx-auto flex items-center justify-center text-4xl text-gray-600 mb-6">
+        <section id="report" class="screen hidden dashboard-shell min-h-full flex items-center justify-center p-6 rounded-[32px]">
+            <div class="dashboard-card w-full max-w-md p-8 rounded-3xl text-center border-t-8 border-[var(--pet-coral)] fade-in">
+                <div class="w-20 h-20 bg-[#fff1e2] rounded-full mx-auto flex items-center justify-center text-4xl text-[var(--pet-coral)] mb-6">
                     <i class="fa-solid fa-shield-halved"></i>
                 </div>
                 <h2 class="font-heading text-2xl font-bold text-gray-900 mb-2">Canal de Denúncia</h2>
@@ -491,26 +573,31 @@
                     Maus-tratos a animais é crime (Lei 9.605/98). Sua identidade será preservada. Ao clicar abaixo, você será redirecionado para o portal oficial da Polícia.
                 </p>
 
-                <a href="https://www.pcdf.df.gov.br/servicos/197/maus-tratos-a-animais" target="_blank" class="block w-full bg-gray-800 hover:bg-gray-900 text-white font-bold py-4 rounded-xl shadow-lg transition flex items-center justify-center gap-2">
+                <a href="https://www.pcdf.df.gov.br/servicos/197/maus-tratos-a-animais" target="_blank" class="block w-full bg-[var(--pet-coral)] hover:bg-[#ea6a12] text-white font-bold py-4 rounded-xl shadow-lg transition flex items-center justify-center gap-2">
                     <i class="fa-solid fa-external-link-alt"></i> Fazer Denúncia Oficial
                 </a>
                 
-                <button onclick="nav('dashboard')" class="mt-6 text-gray-400 text-sm hover:text-gray-600">Cancelar e voltar</button>
+                <button type="button" onclick="nav('dashboard')" class="mt-6 text-gray-400 text-sm hover:text-gray-600">Cancelar e voltar</button>
             </div>
         </section>
 
         <!-- 7. CHAT SOCIAL -->
-        <section id="social" class="screen hidden h-full flex flex-col md:flex-row bg-white">
+        <section id="social" class="screen hidden dashboard-shell h-full flex flex-col md:flex-row rounded-[32px]">
             <!-- Sidebar Lista -->
-            <div class="w-full md:w-80 border-r border-gray-100 bg-gray-50 flex flex-col h-1/3 md:h-full">
-                <div class="p-4 flex justify-between items-center bg-white border-b border-gray-100">
-                    <h2 class="font-heading font-bold text-gray-800">Mensagens</h2>
+            <div class="dashboard-card w-full md:w-80 border-r border-gray-100 bg-[#fff8ef] flex flex-col h-1/3 md:h-full">
+                <div class="p-4 flex justify-between items-center bg-[var(--pet-card)] border-b border-orange-100">
+                    <div class="flex items-center gap-3">
+                        <button type="button" onclick="nav('dashboard')" class="text-gray-400 hover:text-gray-700 transition">
+                            <i class="fa-solid fa-arrow-left text-sm"></i>
+                        </button>
+                        <h2 class="font-heading font-bold text-gray-800">Mensagens</h2>
+                    </div>
                     <button class="text-xs bg-brand-purple text-white px-3 py-1 rounded-full font-bold shadow-md hover:bg-purple-700 transition">+ Amigo</button>
                 </div>
                 <!-- Convites -->
                 <div class="p-3 bg-orange-50 border-b border-orange-100">
                     <p class="text-[10px] font-bold text-brand-orange uppercase mb-2">Convites Pendentes</p>
-                    <div class="flex items-center gap-2 bg-white p-2 rounded-lg shadow-sm">
+                    <div class="flex items-center gap-2 bg-[var(--pet-card)] p-2 rounded-lg shadow-sm">
                         <img src="https://i.pravatar.cc/150?img=12" class="w-8 h-8 rounded-full">
                         <div class="flex-1 min-w-0">
                             <p class="text-xs font-bold truncate">Carla (Thor)</p>
@@ -521,7 +608,7 @@
                 </div>
                 <!-- Lista de Conversas -->
                 <div class="flex-1 overflow-y-auto p-2 space-y-1">
-                    <div class="flex items-center gap-3 p-3 bg-white rounded-xl shadow-sm border border-brand-purple/20 cursor-pointer">
+                    <div class="flex items-center gap-3 p-3 bg-[var(--pet-card)] rounded-xl shadow-sm border border-orange-100 cursor-pointer">
                         <div class="relative">
                             <img src="https://i.pravatar.cc/150?img=60" class="w-10 h-10 rounded-full">
                             <span class="absolute bottom-0 right-0 w-2.5 h-2.5 bg-green-500 border-2 border-white rounded-full"></span>
@@ -548,10 +635,10 @@
             </div>
 
             <!-- Área de Chat -->
-            <div class="flex-1 bg-[#F0F2F5] flex flex-col h-2/3 md:h-full relative">
+            <div class="flex-1 bg-[#fff4e8] flex flex-col h-2/3 md:h-full relative">
                 <!-- Chat Header -->
-                <div class="bg-white p-4 shadow-sm flex items-center gap-3 z-10">
-                    <button class="md:hidden text-gray-500" onclick="nav('dashboard')"><i class="fa-solid fa-arrow-left"></i></button>
+                <div class="bg-[var(--pet-card)] p-4 shadow-sm flex items-center gap-3 z-10">
+                    <button type="button" class="md:hidden text-gray-500" onclick="nav('dashboard')"><i class="fa-solid fa-arrow-left"></i></button>
                     <img src="https://i.pravatar.cc/150?img=60" class="w-10 h-10 rounded-full">
                     <div>
                         <h3 class="font-bold text-gray-800 text-sm">Pedro (Rex)</h3>
@@ -564,23 +651,23 @@
                     <!-- Recebida -->
                     <div class="flex items-end gap-2">
                         <img src="https://i.pravatar.cc/150?img=60" class="w-8 h-8 rounded-full mb-1">
-                        <div class="bg-white text-gray-700 p-3 rounded-2xl rounded-bl-none shadow-sm max-w-[75%] text-sm">
+                        <div class="bg-[var(--pet-card)] text-gray-700 p-3 rounded-2xl rounded-bl-none shadow-sm max-w-[75%] text-sm">
                             E aí! Vamos levar os cachorros no Ibirapuera hoje? 🌳
                         </div>
                     </div>
                     <!-- Enviada -->
                     <div class="flex items-end gap-2 justify-end">
-                        <div class="bg-brand-purple text-white p-3 rounded-2xl rounded-br-none shadow-md max-w-[75%] text-sm">
+                        <div class="bg-[var(--pet-coral)] text-white p-3 rounded-2xl rounded-br-none shadow-md max-w-[75%] text-sm">
                             Oi Pedro! Claro, que horas? O Pipoca tá super animado! 🐶
                         </div>
                     </div>
                 </div>
 
                 <!-- Input -->
-                <div class="p-4 bg-white flex items-center gap-3">
+                <div class="p-4 bg-[var(--pet-card)] flex items-center gap-3">
                     <button class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-paperclip"></i></button>
-                    <input type="text" placeholder="Digite uma mensagem..." class="flex-1 bg-gray-100 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-brand-purple/50">
-                    <button class="w-10 h-10 bg-brand-orange text-white rounded-full flex items-center justify-center shadow-md hover:scale-105 transition"><i class="fa-solid fa-paper-plane"></i></button>
+                    <input type="text" placeholder="Digite uma mensagem..." class="flex-1 bg-[#fff8ef] rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-orange-300">
+                    <button class="w-10 h-10 bg-[var(--pet-coral)] text-white rounded-full flex items-center justify-center shadow-md hover:scale-105 transition"><i class="fa-solid fa-paper-plane"></i></button>
                 </div>
             </div>
         </section>
@@ -597,37 +684,37 @@
             </div>
             
             <!-- Área de Mensagens -->
-            <div id="chat-messages" class="h-64 bg-gray-50 p-4 overflow-y-auto space-y-3 text-sm flex flex-col">
+            <div id="chat-messages" class="h-64 bg-[#fff8ef] p-4 overflow-y-auto space-y-3 text-sm flex flex-col">
                 <!-- Mensagem Inicial -->
                 <div class="flex gap-2 items-end">
-                    <div class="w-6 h-6 bg-brand-orange rounded-full flex-shrink-0 flex items-center justify-center text-white text-xs"><i class="fa-solid fa-cat"></i></div>
-                    <div class="bg-white p-3 rounded-xl rounded-tl-none shadow-sm text-gray-600 border border-gray-100">
+                    <div class="w-6 h-6 bg-[var(--pet-coral)] rounded-full flex-shrink-0 flex items-center justify-center text-white text-xs"><i class="fa-solid fa-cat"></i></div>
+                    <div class="bg-[var(--pet-card)] p-3 rounded-xl rounded-tl-none shadow-sm text-gray-600 border border-orange-100">
                         Olá! Sou a IA do AuMeow. 😺<br>Posso ajudar com <b>saúde</b>, <b>serviços</b> ou <b>dúvidas</b> do app.
                     </div>
                 </div>
             </div>
 
             <!-- Input Area -->
-            <div class="p-3 bg-white border-t border-gray-100 flex gap-2">
-                <input id="chat-input" type="text" onkeypress="handleChatKey(event)" class="flex-1 bg-gray-100 rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-brand-purple" placeholder="Digite aqui...">
-                <button onclick="sendChatMessage()" class="text-brand-purple hover:bg-purple-50 p-2 rounded-lg transition"><i class="fa-solid fa-paper-plane"></i></button>
+            <div class="p-3 bg-[var(--pet-card)] border-t border-orange-100 flex gap-2">
+                <input id="chat-input" type="text" onkeypress="handleChatKey(event)" class="flex-1 bg-[#fff8ef] rounded-lg px-3 py-2 text-sm outline-none focus:ring-1 focus:ring-orange-300" placeholder="Digite aqui...">
+                <button onclick="sendChatMessage()" class="text-[var(--pet-coral)] hover:bg-orange-50 p-2 rounded-lg transition"><i class="fa-solid fa-paper-plane"></i></button>
             </div>
         </div>
 
         <!-- Botão Flutuante -->
-        <button onclick="toggleChat()" class="fixed bottom-6 right-6 w-14 h-14 bg-gray-900 text-white rounded-full shadow-glow flex items-center justify-center text-2xl z-50 hover:scale-110 transition border-4 border-white">
+        <button id="ai-chat-toggle" onclick="toggleChat()" class="fixed bottom-6 right-6 hidden w-14 h-14 bg-[var(--pet-coral)] text-white rounded-full shadow-glow items-center justify-center text-2xl z-50 hover:scale-110 transition border-4 border-white">
             <i class="fa-solid fa-cat"></i>
         </button>
 
         <!-- 9. TELA DE ADOÇÃO -->
-        <section id="adoption" class="screen hidden p-6 max-w-6xl mx-auto">
+        <section id="adoption" class="screen hidden dashboard-shell p-6 max-w-6xl mx-auto rounded-[32px]">
             <div class="flex flex-col md:flex-row justify-between items-end mb-8 gap-4">
                 <div>
-                    <button onclick="nav('dashboard')" class="text-gray-400 mb-2 hover:text-brand-orange"><i class="fa-solid fa-arrow-left"></i> Voltar</button>
+                    <button type="button" onclick="nav('dashboard')" class="text-gray-400 mb-2 hover:text-brand-orange"><i class="fa-solid fa-arrow-left"></i> Voltar</button>
                     <h2 class="font-heading text-3xl font-bold text-gray-800"><span class="text-brand-purple">Adote</span> um Amor</h2>
                 </div>
-                <div class="flex gap-2 bg-white p-1 rounded-full shadow-sm">
-                    <button class="bg-gray-900 text-white px-4 py-2 rounded-full text-sm font-bold">Todos</button>
+                <div class="dashboard-card flex gap-2 p-1 rounded-full">
+                    <button class="bg-[var(--pet-coral)] text-white px-4 py-2 rounded-full text-sm font-bold">Todos</button>
                     <button class="text-gray-500 px-4 py-2 rounded-full text-sm font-bold hover:bg-gray-100">Cães</button>
                     <button class="text-gray-500 px-4 py-2 rounded-full text-sm font-bold hover:bg-gray-100">Gatos</button>
                 </div>
@@ -635,7 +722,7 @@
 
             <div class="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
                 <!-- Card 1 -->
-                <div class="bg-white rounded-[32px] p-3 shadow-sm hover:shadow-xl transition duration-300 group">
+                <div class="dashboard-card rounded-[32px] p-3 hover:shadow-xl transition duration-300 group">
                     <div class="relative h-64 rounded-[24px] overflow-hidden mb-3">
                         <img src="https://adotar.com.br/upload/2025-11/animais_imagem1288955.jpg?w=700&format=webp" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
                         <div class="absolute top-3 left-3 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-xs font-bold text-brand-orange shadow-sm">🐱 Macho</div>
@@ -656,7 +743,7 @@
                 </div>
 
                  <!-- Card 2 -->
-                 <div class="bg-white rounded-[32px] p-3 shadow-sm hover:shadow-xl transition duration-300 group">
+                 <div class="dashboard-card rounded-[32px] p-3 hover:shadow-xl transition duration-300 group">
                     <div class="relative h-64 rounded-[24px] overflow-hidden mb-3">
                         <img src="https://adotar.com.br/upload/2025-11/animais_imagem1288658.jpeg?w=700&format=webp" class="w-full h-full object-cover group-hover:scale-105 transition duration-500">
                         <div class="absolute top-3 left-3 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-xs font-bold text-brand-purple shadow-sm">🐶 Macho</div>
@@ -678,9 +765,9 @@
         </section>
 
         <!-- 10. ÁREA ADMINISTRATIVA -->
-        <section id="admin" class="screen hidden h-full flex bg-gray-100 text-gray-800">
+        <section id="admin" class="screen hidden dashboard-shell h-full flex text-gray-800 rounded-[32px]">
             <!-- Sidebar Admin -->
-            <aside class="w-64 bg-white border-r border-gray-200 hidden md:flex flex-col p-6">
+            <aside class="dashboard-card w-64 border-r border-gray-200 hidden md:flex flex-col p-6">
                 <div class="flex items-center gap-2 mb-10 text-brand-purple">
                     <i class="fa-solid fa-shield-cat text-2xl"></i>
                     <h2 class="font-heading font-bold text-xl text-gray-900">Admin</h2>
@@ -706,17 +793,17 @@
                     <h1 class="text-2xl font-bold text-gray-800 mb-6">Visão Geral</h1>
                     <!-- Stats Cards -->
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                        <div class="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-green-500">
+                        <div class="dashboard-card p-6 rounded-2xl border-l-4 border-green-500">
                             <p class="text-xs font-bold text-gray-400 uppercase">Receita Total</p>
                             <h3 class="text-3xl font-bold text-gray-800 mt-1">R$ 45.200</h3>
                             <span class="text-green-500 text-xs font-bold">▲ +12% esse mês</span>
                         </div>
-                         <div class="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-blue-500">
+                         <div class="dashboard-card p-6 rounded-2xl border-l-4 border-blue-500">
                             <p class="text-xs font-bold text-gray-400 uppercase">Novos Usuários</p>
                             <h3 class="text-3xl font-bold text-gray-800 mt-1">1,240</h3>
                             <span class="text-blue-500 text-xs font-bold">▲ +85 essa semana</span>
                         </div>
-                        <div class="bg-white p-6 rounded-2xl shadow-sm border-l-4 border-brand-orange">
+                        <div class="dashboard-card p-6 rounded-2xl border-l-4 border-brand-orange">
                             <p class="text-xs font-bold text-gray-400 uppercase">Pedidos Pendentes</p>
                             <h3 class="text-3xl font-bold text-gray-800 mt-1">34</h3>
                             <span class="text-brand-orange text-xs font-bold">Ação Necessária</span>
@@ -724,7 +811,7 @@
                     </div>
 
                     <!-- Gráfico Fake (CSS Bars) -->
-                    <div class="bg-white p-6 rounded-2xl shadow-sm mb-6">
+                    <div class="dashboard-card p-6 rounded-2xl mb-6">
                         <h3 class="font-bold mb-6">Vendas Semanais</h3>
                         <div class="flex items-end justify-between h-48 gap-4 px-4">
                             <!-- Barra --> <div class="w-full bg-purple-100 rounded-t-lg relative h-[40%] group"><div class="absolute bottom-0 w-full bg-brand-purple rounded-t-lg h-full transition-all group-hover:bg-purple-700"></div></div>
@@ -747,7 +834,7 @@
                         <button class="bg-brand-purple text-white px-4 py-2 rounded-lg font-bold hover:bg-purple-700 shadow-lg">+ Novo Produto</button>
                     </div>
                     
-                    <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
+                    <div class="dashboard-card rounded-2xl overflow-hidden">
                         <table class="w-full text-left border-collapse">
                             <thead class="bg-gray-50 text-xs text-gray-500 uppercase border-b border-gray-100">
                                 <tr>
@@ -790,7 +877,7 @@
                 <!-- 10.3 CRUD Usuários -->
                 <div id="admin-users" class="admin-tab hidden fade-in">
                     <h1 class="text-2xl font-bold text-gray-800 mb-6">Usuários</h1>
-                    <div class="bg-white rounded-2xl shadow-sm overflow-hidden">
+                    <div class="dashboard-card rounded-2xl overflow-hidden">
                         <table class="w-full text-left">
                             <thead class="bg-gray-50 text-xs text-gray-500 uppercase border-b border-gray-100">
                                 <tr>
@@ -836,6 +923,7 @@
 <script src="assets/js/chat.js"></script>
 <script src="assets/js/app.js"></script>
 <script src="assets/js/pets.js"></script>
+<script src="assets/js/auth.js"></script>
 <script src="assets/js/lembretes.js"></script>
 
 
@@ -925,3 +1013,6 @@
 
 </body>
 </html>
+
+
+

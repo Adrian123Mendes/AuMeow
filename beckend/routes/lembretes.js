@@ -6,8 +6,10 @@ import {
     update,
     remove
 } from "../controllers/lembreteController.js";
+import { requireAuth } from "../middlewares/auth.js";
 
 const router = express.Router();
+router.use(requireAuth);
 
 // ROTAS CRUD
 router.get("/", getAll);        // Listar todos

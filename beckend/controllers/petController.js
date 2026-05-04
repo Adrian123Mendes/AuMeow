@@ -1,20 +1,39 @@
 import { db } from "../db.js";
 
-// Cria um novo pet
+function normalizePetPayload(body) {
+  const nome = body.nome?.trim();
+  const raca = body.raca?.trim() || null;
+  const aniversario = body.aniversario?.trim() || null;
+  const idadeRaw = typeof body.idade === "string" ? body.idade.trim() : body.idade;
+  const idade = idadeRaw !== undefined && idadeRaw !== null && idadeRaw !== ""
+    ? Number.parseInt(idadeRaw, 10)
+    : null;
+  const signo = aniversario ? body.signo?.trim() || null : null;
+
+  return {
+    nome,
+    raca,
+    aniversario,
+    idade: Number.isNaN(idade) ? null : idade,
+    signo
+  };
+}
+
 export const criarPet = async (req, res) => {
   try {
-    const { nome, raca, idade, aniversario } = req.body;
+    const { nome, raca, idade, aniversario, signo } = normalizePetPayload(req.body);
 
-    // Foto enviada pelo multer
+    if (!nome) {
+      return res.status(400).json({ error: "Nome do pet e obrigatorio." });
+    }
+
     const foto = req.file ? req.file.filename : null;
-
-    // âš ï¸ TEMPORÃRIO: atÃ© o login estar pronto
-    const id_usuario = 1;
+    const id_usuario = req.user.id;
 
     const [result] = await db.query(
-      `INSERT INTO pets (nome, raca, idade, aniversario, foto, id_usuario)
-       VALUES (?, ?, ?, ?, ?, ?)`,
-      [nome, raca, idade, aniversario, foto, id_usuario]
+      `INSERT INTO pets (nome, raca, idade, aniversario, foto, signo, id_usuario)
+       VALUES (?, ?, ?, ?, ?, ?, ?)`,
+      [nome, raca, idade, aniversario, foto, signo, id_usuario]
     );
 
     res.json({
@@ -22,17 +41,18 @@ export const criarPet = async (req, res) => {
       id: result.insertId,
       foto
     });
-
   } catch (error) {
     console.error("Erro ao criar pet:", error);
     res.status(500).json({ error: "Erro ao criar pet" });
   }
 };
 
-// Listar pets
 export const listarPets = async (req, res) => {
   try {
-    const [rows] = await db.query("SELECT * FROM pets ORDER BY criado_em DESC");
+    const [rows] = await db.query(
+      "SELECT * FROM pets WHERE id_usuario = ? ORDER BY criado_em DESC",
+      [req.user.id]
+    );
     res.json(rows);
   } catch (error) {
     console.error("Erro listarPets:", error);
@@ -40,14 +60,17 @@ export const listarPets = async (req, res) => {
   }
 };
 
-// Buscar pet por ID
 export const buscarPet = async (req, res) => {
   try {
     const { id } = req.params;
-    const [rows] = await db.query("SELECT * FROM pets WHERE id = ?", [id]);
+    const [rows] = await db.query(
+      "SELECT * FROM pets WHERE id = ? AND id_usuario = ?",
+      [id, req.user.id]
+    );
 
-    if (rows.length === 0)
-      return res.status(404).json({ error: "Pet nÃ£o encontrado." });
+    if (rows.length === 0) {
+      return res.status(404).json({ error: "Pet nao encontrado." });
+    }
 
     res.json(rows[0]);
   } catch (error) {
@@ -56,31 +79,46 @@ export const buscarPet = async (req, res) => {
   }
 };
 
-// Deletar pet
 export const deletarPet = async (req, res) => {
   try {
     const { id } = req.params;
-    await db.query("DELETE FROM pets WHERE id = ?", [id]);
+    const [result] = await db.query(
+      "DELETE FROM pets WHERE id = ? AND id_usuario = ?",
+      [id, req.user.id]
+    );
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: "Pet nao encontrado." });
+    }
+
     res.json({ message: "Pet removido com sucesso." });
   } catch (error) {
     console.error("Erro deletarPet:", error);
     res.status(500).json({ error: "Erro ao remover pet." });
   }
 };
+
 export const atualizarPet = async (req, res) => {
   try {
     const { id } = req.params;
-    const { nome, raca, idade, aniversario, foto, signo } = req.body;
+    const { nome, raca, idade, aniversario, signo } = normalizePetPayload(req.body);
+    const foto = req.body.foto?.trim() || null;
 
-    await db.query(
+    const [result] = await db.query(
       `UPDATE pets SET nome = ?, raca = ?, idade = ?, aniversario = ?, foto = ?, signo = ?
-       WHERE id = ?`,
-      [nome, raca, idade, aniversario, foto, signo, id]
+       WHERE id = ? AND id_usuario = ?`,
+      [nome, raca, idade, aniversario, foto, signo, id, req.user.id]
     );
 
-    const [rows] = await db.query("SELECT * FROM pets WHERE id = ?", [id]);
-    res.json(rows[0]);
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ error: "Pet nao encontrado." });
+    }
 
+    const [rows] = await db.query(
+      "SELECT * FROM pets WHERE id = ? AND id_usuario = ?",
+      [id, req.user.id]
+    );
+    res.json(rows[0]);
   } catch (error) {
     console.error("Erro atualizarPet:", error);
     res.status(500).json({ error: "Erro ao atualizar pet." });

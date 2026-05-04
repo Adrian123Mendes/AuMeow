@@ -3,29 +3,34 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
 export const login = async (req, res) => {
-  const { email, senha } = req.body;
+  const email = req.body.email?.trim().toLowerCase();
+  const senha = req.body.senha;
+
+  if (!email || !senha) {
+    return res.status(400).json({ error: "E-mail e senha sao obrigatorios." });
+  }
+
+  if (!process.env.JWT_SECRET) {
+    return res.status(500).json({ error: "JWT_SECRET nao configurado." });
+  }
 
   try {
-    // Procurando usuÃ¡rio na tabela usuarios
     const [rows] = await db.query(
       "SELECT * FROM usuarios WHERE email = ?",
       [email]
     );
 
     if (rows.length === 0) {
-      return res.status(401).json({ error: "UsuÃ¡rio nÃ£o encontrado." });
+      return res.status(401).json({ error: "Usuario nao encontrado." });
     }
 
     const usuario = rows[0];
-
-    // Comparar senhas
     const senhaMatch = await bcrypt.compare(senha, usuario.senha);
 
     if (!senhaMatch) {
       return res.status(401).json({ error: "Senha incorreta." });
     }
 
-    // Criar token
     const token = jwt.sign(
       { id: usuario.id, nome: usuario.nome },
       process.env.JWT_SECRET,
@@ -41,7 +46,6 @@ export const login = async (req, res) => {
         email: usuario.email
       }
     });
-
   } catch (error) {
     console.error("Erro no login:", error);
     res.status(500).json({ error: "Erro interno no servidor." });

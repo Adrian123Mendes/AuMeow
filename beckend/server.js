@@ -4,7 +4,10 @@ import dotenv from "dotenv";
 
 import petRoutes from "./routes/pets.js";
 import iaRoutes from "./routes/ia.js";
-import lembreteRoutes from "./routes/lembretes.js";  // â­ IMPORT NOVO
+import lembreteRoutes from "./routes/lembretes.js";
+import authRoutes from "./routes/auth.js";
+import usuarioRoutes from "./routes/usuarios.js";
+import { ensureDatabaseSchema } from "./db.js";
 
 dotenv.config();
 
@@ -13,16 +16,24 @@ app.use(cors());
 app.use(express.json());
 app.use("/uploads/pets", express.static("uploads/pets"));
 
-// Rotas
+app.use("/api/auth", authRoutes);
+app.use("/api/usuarios", usuarioRoutes);
 app.use("/api/pets", petRoutes);
 app.use("/api/ia", iaRoutes);
-app.use("/api/lembretes", lembreteRoutes);  // â­ REGISTRO NOVO
+app.use("/api/lembretes", lembreteRoutes);
 
-// Rota de teste
 app.get("/", (req, res) => {
-  res.send("API AuMeow funcionando ðŸš€");
+  res.send("API AuMeow funcionando");
 });
 
-// Iniciar servidor
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}`));
+
+async function startServer() {
+  await ensureDatabaseSchema();
+  app.listen(PORT, () => console.log(`Servidor rodando na porta ${PORT}`));
+}
+
+startServer().catch((error) => {
+  console.error("Falha ao iniciar o servidor:", error);
+  process.exit(1);
+});
