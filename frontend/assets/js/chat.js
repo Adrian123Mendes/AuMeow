@@ -1,9 +1,13 @@
+let chatRequestInFlight = false;
+
 function toggleChat() {
     const chat = document.getElementById("ai-chat-window");
+    if (!chat) return;
+
     if (chat.classList.contains("hidden")) {
         chat.classList.remove("hidden");
         setTimeout(() => chat.classList.remove("scale-95"), 10);
-        setTimeout(() => document.getElementById("chat-input").focus(), 100);
+        setTimeout(() => document.getElementById("chat-input")?.focus(), 100);
     } else {
         chat.classList.add("scale-95");
         setTimeout(() => chat.classList.add("hidden"), 200);
@@ -17,11 +21,55 @@ function handleChatKey(event) {
     }
 }
 
-async function sendChatMessage() {
+function setChatSendingState(isSending) {
     const input = document.getElementById("chat-input");
-    const message = input.value.trim();
+    const sendButton = document.querySelector("#chat-input + button");
+
+    if (input) {
+        input.disabled = isSending;
+        input.placeholder = isSending ? "Aguardando resposta..." : "Digite aqui...";
+    }
+
+    if (sendButton) {
+        sendButton.disabled = isSending;
+        sendButton.classList.toggle("opacity-50", isSending);
+        sendButton.classList.toggle("cursor-not-allowed", isSending);
+    }
+}
+
+function getReadableChatError(error) {
+    const message = error?.message || "Falha inesperada ao conectar com a IA.";
+
+    if (/failed to fetch|networkerror|load failed/i.test(message)) {
+        return "Não consegui conectar ao servidor da IA. Verifique se o backend está rodando e se a URL da API está correta.";
+    }
+
+    return message;
+}
+
+async function getApiErrorMessage(response) {
+    let apiError = `Erro HTTP ${response.status}`;
+
+    try {
+        const data = await response.json();
+        apiError = data?.details || data?.error || apiError;
+    } catch {
+        // Mantém o erro padrão se a resposta não vier em JSON.
+    }
+
+    return apiError;
+}
+
+async function sendChatMessage() {
+    if (chatRequestInFlight) return;
+
+    const input = document.getElementById("chat-input");
+    const message = input?.value.trim();
 
     if (!message) return;
+
+    chatRequestInFlight = true;
+    setChatSendingState(true);
 
     addMessageToChat(message, "user");
     input.value = "";
@@ -49,25 +97,19 @@ async function sendChatMessage() {
         });
 
         if (!response.ok) {
-            let apiError = `Erro HTTP ${response.status}`;
-
-            try {
-                const data = await response.json();
-                apiError = data?.details || data?.error || apiError;
-            } catch {
-                // Mantem o erro padrao se a resposta nao vier em JSON.
-            }
-
-            throw new Error(apiError);
+            throw new Error(await getApiErrorMessage(response));
         }
 
         const data = await response.json();
-        loading.remove();
         addMessageToChat(data.reply || "Sem resposta.", "bot");
     } catch (error) {
-        loading.remove();
-        addMessageToChat(`Desculpe, eu nao consegui responder agora. ${error.message}`, "bot");
+        addMessageToChat(`Desculpe, eu não consegui responder agora. ${getReadableChatError(error)}`, "bot");
         console.error("Erro ao conectar com IA:", error);
+    } finally {
+        loading.remove();
+        chatRequestInFlight = false;
+        setChatSendingState(false);
+        input.focus();
     }
 }
 

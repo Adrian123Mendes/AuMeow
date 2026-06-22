@@ -28,7 +28,7 @@ function isAuthenticated() {
 
 function setAuthSession(session) {
     if (!session?.token || !session?.usuario) {
-        throw new Error("Sessao invalida.");
+        throw new Error("Sessão inválida.");
     }
 
     window.localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify({
@@ -64,23 +64,39 @@ async function apiFetch(path, options = {}) {
     return response;
 }
 
-function getZodiacPresentation(signName) {
-    const presentations = {
-        Aquario: { iconClass: "fa-solid fa-water", iconColorClass: "text-sky-500" },
-        Peixes: { iconClass: "fa-solid fa-fish", iconColorClass: "text-cyan-500" },
-        Aries: { iconClass: "fa-solid fa-fire", iconColorClass: "text-red-500" },
-        Touro: { iconClass: "fa-solid fa-shield-dog", iconColorClass: "text-amber-600" },
-        Gemeos: { iconClass: "fa-solid fa-user-group", iconColorClass: "text-violet-500" },
-        Cancer: { iconClass: "fa-solid fa-moon", iconColorClass: "text-blue-500" },
-        Leao: { iconClass: "fa-solid fa-crown", iconColorClass: "text-yellow-500" },
-        Virgem: { iconClass: "fa-solid fa-seedling", iconColorClass: "text-emerald-500" },
-        Libra: { iconClass: "fa-solid fa-scale-balanced", iconColorClass: "text-indigo-500" },
-        Escorpiao: { iconClass: "fa-solid fa-bolt", iconColorClass: "text-rose-500" },
-        Sagitario: { iconClass: "fa-solid fa-location-arrow", iconColorClass: "text-orange-500" },
-        Capricornio: { iconClass: "fa-solid fa-mountain", iconColorClass: "text-stone-500" }
+function getZodiacDisplayName(signName) {
+    const aliases = {
+        Aquario: "Aquário",
+        Aries: "Áries",
+        Gemeos: "Gêmeos",
+        Cancer: "Câncer",
+        Leao: "Leão",
+        Escorpiao: "Escorpião",
+        Sagitario: "Sagitário",
+        Capricornio: "Capricórnio"
     };
 
-    return presentations[signName] || {
+    return aliases[signName] || signName;
+}
+
+function getZodiacPresentation(signName) {
+    const displayName = getZodiacDisplayName(signName);
+    const presentations = {
+        "Aquário": { iconClass: "fa-solid fa-water", iconColorClass: "text-sky-500" },
+        Peixes: { iconClass: "fa-solid fa-fish", iconColorClass: "text-cyan-500" },
+        "Áries": { iconClass: "fa-solid fa-fire", iconColorClass: "text-red-500" },
+        Touro: { iconClass: "fa-solid fa-shield-dog", iconColorClass: "text-amber-600" },
+        "Gêmeos": { iconClass: "fa-solid fa-user-group", iconColorClass: "text-violet-500" },
+        "Câncer": { iconClass: "fa-solid fa-moon", iconColorClass: "text-blue-500" },
+        "Leão": { iconClass: "fa-solid fa-crown", iconColorClass: "text-yellow-500" },
+        Virgem: { iconClass: "fa-solid fa-seedling", iconColorClass: "text-emerald-500" },
+        Libra: { iconClass: "fa-solid fa-scale-balanced", iconColorClass: "text-indigo-500" },
+        "Escorpião": { iconClass: "fa-solid fa-bolt", iconColorClass: "text-rose-500" },
+        "Sagitário": { iconClass: "fa-solid fa-location-arrow", iconColorClass: "text-orange-500" },
+        "Capricórnio": { iconClass: "fa-solid fa-mountain", iconColorClass: "text-stone-500" }
+    };
+
+    return presentations[displayName] || {
         iconClass: "fa-solid fa-star",
         iconColorClass: "text-brand-orange"
     };
@@ -113,18 +129,18 @@ function getZodiacSignByDate(date) {
     const month = d.getUTCMonth() + 1;
 
     const signs = [
-        { name: "Aquario", start: "01-20", end: "02-18" },
+        { name: "Aquário", start: "01-20", end: "02-18" },
         { name: "Peixes", start: "02-19", end: "03-20" },
-        { name: "Aries", start: "03-21", end: "04-19" },
+        { name: "Áries", start: "03-21", end: "04-19" },
         { name: "Touro", start: "04-20", end: "05-20" },
-        { name: "Gemeos", start: "05-21", end: "06-20" },
-        { name: "Cancer", start: "06-21", end: "07-22" },
-        { name: "Leao", start: "07-23", end: "08-22" },
+        { name: "Gêmeos", start: "05-21", end: "06-20" },
+        { name: "Câncer", start: "06-21", end: "07-22" },
+        { name: "Leão", start: "07-23", end: "08-22" },
         { name: "Virgem", start: "08-23", end: "09-22" },
         { name: "Libra", start: "09-23", end: "10-22" },
-        { name: "Escorpiao", start: "10-23", end: "11-21" },
-        { name: "Sagitario", start: "11-22", end: "12-21" },
-        { name: "Capricornio", start: "12-22", end: "01-19" }
+        { name: "Escorpião", start: "10-23", end: "11-21" },
+        { name: "Sagitário", start: "11-22", end: "12-21" },
+        { name: "Capricórnio", start: "12-22", end: "01-19" }
     ];
 
     const mmdd = String(month).padStart(2, "0") + "-" + String(day).padStart(2, "0");
@@ -185,6 +201,7 @@ window.getAuthUser = getAuthUser;
 window.isAuthenticated = isAuthenticated;
 window.setAuthSession = setAuthSession;
 window.clearAuthSession = clearAuthSession;
+window.getZodiacDisplayName = getZodiacDisplayName;
 window.getZodiacPresentation = getZodiacPresentation;
 window.getAgeInYears = getAgeInYears;
 window.getZodiacSignByDate = getZodiacSignByDate;

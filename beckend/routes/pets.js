@@ -6,14 +6,14 @@ import {
   atualizarPet,
   deletarPet
 } from "../controllers/petController.js";
-import upload from "../middlewares/uploadPetPhoto.js";
+import { uploadPetPhoto } from "../middlewares/uploadPetPhoto.js";
 import { requireAuth } from "../middlewares/auth.js";
 
 const router = express.Router();
 router.use(requireAuth);
 
 // CRUD Pets
-router.post("/add", upload.single("foto"), criarPet);
+router.post("/add", uploadPetPhoto, criarPet);
 router.get("/", listarPets);
 router.get("/:id", buscarPet);
 router.put("/:id", atualizarPet);

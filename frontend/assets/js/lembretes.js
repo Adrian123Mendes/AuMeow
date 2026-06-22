@@ -50,7 +50,7 @@ function ensureReminderNotificationsPanel() {
     reminderNotificationsPanel.className = "hidden absolute right-0 top-14 z-40 w-[320px] rounded-[24px] border border-gray-100 bg-white p-3 shadow-2xl";
     reminderNotificationsPanel.innerHTML = `
         <div class="mb-2 flex items-center justify-between px-2 pt-1">
-            <h3 class="font-heading text-sm font-bold text-gray-800">Notificacoes</h3>
+            <h3 class="font-heading text-sm font-bold text-gray-800">Notificações</h3>
             <button type="button" data-close-notifications class="rounded-full p-2 text-gray-400 transition hover:bg-gray-100 hover:text-gray-600">
                 <i class="fa-solid fa-xmark"></i>
             </button>
@@ -81,7 +81,7 @@ function renderReminderNotificationsPanel() {
     if (!reminderNotifications.length) {
         content.innerHTML = `
             <div class="rounded-2xl bg-gray-50 px-4 py-5 text-sm text-gray-500">
-                Nenhum lembrete proximo no momento.
+                Nenhum lembrete próximo no momento.
             </div>
         `;
         return;
@@ -94,7 +94,7 @@ function renderReminderNotificationsPanel() {
             const iconColors = item.tipo === "vacina"
                 ? "bg-red-100 text-red-500"
                 : "bg-green-100 text-green-500";
-            const urgencyText = isHoje ? "Para hoje" : "Para amanha";
+            const urgencyText = isHoje ? "Para hoje" : "Para amanhã";
 
             return `
                 <button
@@ -336,7 +336,7 @@ function formatarDataRelativo(dtString) {
     const diff = Math.ceil((d - new Date(hoje.toDateString())) / (1000 * 60 * 60 * 24));
 
     if (diff === 0) return "Hoje";
-    if (diff === 1) return "Amanha";
+    if (diff === 1) return "Amanhã";
 
     return `${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")}`;
 }
@@ -379,7 +379,7 @@ async function deletarLembrete(id) {
     carregarLembretesPagina();
     atualizarDashboardNextReminder();
     refreshReminderNotifications();
-    showPetToast("Lembrete excluido com sucesso.", {
+    showPetToast("Lembrete excluído com sucesso.", {
         title: "Lembrete removido",
         iconClass: "fa-solid fa-trash"
     });
@@ -413,8 +413,8 @@ async function salvarEdicaoLembrete() {
     };
 
     if (!atualizado.titulo || !atualizado.tipo || !atualizado.dataHora) {
-        showPetToast("Preencha titulo, tipo e data antes de salvar.", {
-            title: "Campos obrigatorios",
+        showPetToast("Preencha título, tipo e data antes de salvar.", {
+            title: "Campos obrigatórios",
             iconClass: "fa-solid fa-circle-exclamation",
             iconWrapperClass: "bg-red-100 text-red-500"
         });
@@ -434,8 +434,8 @@ async function salvarEdicaoLembrete() {
         refreshReminderNotifications();
     } catch (err) {
         console.error(err);
-        showPetToast("Nao foi possivel atualizar o lembrete.", {
-            title: "Erro na edicao",
+        showPetToast("Não foi possível atualizar o lembrete.", {
+            title: "Erro na edição",
             iconClass: "fa-solid fa-triangle-exclamation",
             iconWrapperClass: "bg-red-100 text-red-500"
         });
@@ -458,8 +458,8 @@ async function salvarLembrete() {
     const descricao = document.getElementById("descricaoLembrete").value.trim();
 
     if (!titulo || !tipo || !dataHora) {
-        showPetToast("Preencha titulo, tipo e data antes de cadastrar.", {
-            title: "Campos obrigatorios",
+        showPetToast("Preencha título, tipo e data antes de cadastrar.", {
+            title: "Campos obrigatórios",
             iconClass: "fa-solid fa-circle-exclamation",
             iconWrapperClass: "bg-red-100 text-red-500"
         });
@@ -493,7 +493,7 @@ async function salvarLembrete() {
         });
     } catch (err) {
         console.error(err);
-        showPetToast("Nao foi possivel cadastrar o lembrete.", {
+        showPetToast("Não foi possível cadastrar o lembrete.", {
             title: "Erro no cadastro",
             iconClass: "fa-solid fa-triangle-exclamation",
             iconWrapperClass: "bg-red-100 text-red-500"

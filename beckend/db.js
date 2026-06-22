@@ -35,6 +35,65 @@ async function ensureDatabaseSchema() {
         ON DELETE CASCADE
     `);
   }
+
+  await db.query(`
+    CREATE TABLE IF NOT EXISTS social_convites (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      id_remetente INT NOT NULL,
+      id_destinatario INT NOT NULL,
+      status ENUM('pending', 'accepted', 'rejected') NOT NULL DEFAULT 'pending',
+      criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      respondido_em TIMESTAMP NULL,
+      CONSTRAINT fk_social_convites_remetente
+        FOREIGN KEY (id_remetente) REFERENCES usuarios(id)
+        ON DELETE CASCADE,
+      CONSTRAINT fk_social_convites_destinatario
+        FOREIGN KEY (id_destinatario) REFERENCES usuarios(id)
+        ON DELETE CASCADE,
+      INDEX idx_social_convites_destinatario_status (id_destinatario, status),
+      INDEX idx_social_convites_remetente_status (id_remetente, status)
+    )
+  `);
+
+  await db.query(`
+    CREATE TABLE IF NOT EXISTS social_conversas (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    )
+  `);
+
+  await db.query(`
+    CREATE TABLE IF NOT EXISTS social_conversa_participantes (
+      id_conversa INT NOT NULL,
+      id_usuario INT NOT NULL,
+      criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      PRIMARY KEY (id_conversa, id_usuario),
+      CONSTRAINT fk_social_participantes_conversa
+        FOREIGN KEY (id_conversa) REFERENCES social_conversas(id)
+        ON DELETE CASCADE,
+      CONSTRAINT fk_social_participantes_usuario
+        FOREIGN KEY (id_usuario) REFERENCES usuarios(id)
+        ON DELETE CASCADE,
+      INDEX idx_social_participantes_usuario (id_usuario)
+    )
+  `);
+
+  await db.query(`
+    CREATE TABLE IF NOT EXISTS social_mensagens (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      id_conversa INT NOT NULL,
+      id_usuario INT NOT NULL,
+      conteudo TEXT NOT NULL,
+      criado_em TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      CONSTRAINT fk_social_mensagens_conversa
+        FOREIGN KEY (id_conversa) REFERENCES social_conversas(id)
+        ON DELETE CASCADE,
+      CONSTRAINT fk_social_mensagens_usuario
+        FOREIGN KEY (id_usuario) REFERENCES usuarios(id)
+        ON DELETE CASCADE,
+      INDEX idx_social_mensagens_conversa_criado (id_conversa, criado_em)
+    )
+  `);
 }
 
 export { db, ensureDatabaseSchema };

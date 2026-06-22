@@ -1,6 +1,6 @@
 function showPetToast(message, options = {}) {
     const {
-        title = "Cadastro concluido",
+        title = "Cadastro concluído",
         iconClass = "fa-solid fa-paw",
         iconWrapperClass = "bg-gradient-to-br from-brand-orange to-brand-purple text-white"
     } = options;
@@ -35,7 +35,7 @@ function showPetToast(message, options = {}) {
 
 function showPetConfirm(message, options = {}) {
     const {
-        title = "Confirmar acao",
+        title = "Confirmar ação",
         confirmLabel = "Confirmar",
         cancelLabel = "Cancelar",
         iconClass = "fa-solid fa-triangle-exclamation"
@@ -90,8 +90,8 @@ function showPetConfirm(message, options = {}) {
 }
 
 async function salvarPet() {
-    const nome = document.getElementById("petNameInput").value;
-    const raca = document.getElementById("petBreedInput").value;
+    const nome = document.getElementById("petNameInput").value.trim();
+    const raca = document.getElementById("petBreedInput").value.trim();
     const aniversario = document.getElementById("petDateInput").value;
     const fotoInput = document.getElementById("petPhotoInput");
     const foto = fotoInput?.files?.[0];
@@ -99,8 +99,8 @@ async function salvarPet() {
     const idade = aniversario ? getAgeInYears(aniversario) : "";
 
     if (!nome || !raca) {
-        showPetToast("Preencha nome e raca antes de continuar.", {
-            title: "Campos obrigatorios",
+        showPetToast("Preencha nome e raça antes de continuar.", {
+            title: "Campos obrigatórios",
             iconClass: "fa-solid fa-circle-exclamation",
             iconWrapperClass: "bg-red-100 text-red-500"
         });
@@ -108,8 +108,8 @@ async function salvarPet() {
     }
 
     if (!foto) {
-        showPetToast("E obrigatorio colocar a foto do pet.", {
-            title: "Foto obrigatoria",
+        showPetToast("É obrigatório colocar a foto do pet.", {
+            title: "Foto obrigatória",
             iconClass: "fa-solid fa-camera",
             iconWrapperClass: "bg-red-100 text-red-500"
         });
@@ -134,7 +134,16 @@ async function salvarPet() {
         });
 
         if (!response.ok) {
-            throw new Error(`Erro HTTP ${response.status}`);
+            let apiError = `Erro HTTP ${response.status}`;
+
+            try {
+                const data = await response.json();
+                apiError = data?.details || data?.error || apiError;
+            } catch {
+                // Mantém o erro padrão se a resposta não vier em JSON.
+            }
+
+            throw new Error(apiError);
         }
 
         await response.json();
@@ -143,7 +152,7 @@ async function salvarPet() {
         loadPets();
     } catch (error) {
         console.error("Erro ao salvar pet:", error);
-        showPetToast("Nao foi possivel cadastrar o pet.", {
+        showPetToast(error.message || "Não foi possível cadastrar o pet.", {
             title: "Erro no cadastro",
             iconClass: "fa-solid fa-triangle-exclamation",
             iconWrapperClass: "bg-red-100 text-red-500"

@@ -24,7 +24,7 @@ export const getById = async (req, res) => {
             [id, req.user.id]
         );
         if (rows.length === 0) {
-            return res.status(404).json({ error: "Lembrete nao encontrado" });
+            return res.status(404).json({ error: "Lembrete não encontrado" });
         }
 
         res.json(rows[0]);
@@ -38,7 +38,7 @@ export const create = async (req, res) => {
     const { titulo, tipo, dataHora, localEvento, descricao } = req.body;
 
     if (!titulo || !tipo || !dataHora) {
-        return res.status(400).json({ error: "Campos obrigatorios: titulo, tipo, dataHora" });
+        return res.status(400).json({ error: "Campos obrigatórios: título, tipo e dataHora." });
     }
 
     try {
@@ -74,7 +74,7 @@ export const update = async (req, res) => {
         );
 
         if (result.affectedRows === 0) {
-            return res.status(404).json({ error: "Lembrete nao encontrado" });
+            return res.status(404).json({ error: "Lembrete não encontrado" });
         }
 
         const [atualizado] = await db.query(
@@ -99,7 +99,7 @@ export const remove = async (req, res) => {
         );
 
         if (result.affectedRows === 0) {
-            return res.status(404).json({ error: "Lembrete nao encontrado" });
+            return res.status(404).json({ error: "Lembrete não encontrado" });
         }
 
         res.json({ message: "Lembrete removido com sucesso" });

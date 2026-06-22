@@ -8,7 +8,7 @@ export const criarUsuario = async (req, res) => {
   const telefone = req.body.telefone?.trim() || null;
 
   if (!nome || !email || !senha) {
-    return res.status(400).json({ error: "Nome, e-mail e senha sao obrigatorios." });
+    return res.status(400).json({ error: "Nome, e-mail e senha são obrigatórios." });
   }
 
   try {
@@ -19,7 +19,7 @@ export const criarUsuario = async (req, res) => {
     );
 
     res.status(201).json({
-      message: "Usuario criado com sucesso!",
+      message: "Usuário criado com sucesso!",
       usuario: {
         id: result.insertId,
         nome,
@@ -28,13 +28,13 @@ export const criarUsuario = async (req, res) => {
       }
     });
   } catch (error) {
-    console.error("Erro ao criar usuario:", error);
+    console.error("Erro ao criar usuário:", error);
 
     if (error.code === "ER_DUP_ENTRY") {
-      return res.status(409).json({ error: "Ja existe um usuario com esse e-mail." });
+      return res.status(409).json({ error: "Já existe um usuário com esse e-mail." });
     }
 
-    res.status(500).json({ error: "Erro ao criar usuario." });
+    res.status(500).json({ error: "Erro ao criar usuário." });
   }
 };
 
@@ -52,7 +52,7 @@ export const buscarUsuario = async (req, res) => {
   );
 
   if (rows.length === 0) {
-    return res.status(404).json({ error: "Usuario nao encontrado" });
+    return res.status(404).json({ error: "Usuário não encontrado" });
   }
 
   res.json(rows[0]);
@@ -63,5 +63,5 @@ export const deletarUsuario = async (req, res) => {
 
   await db.query("DELETE FROM usuarios WHERE id = ?", [id]);
 
-  res.json({ message: "Usuario removido com sucesso" });
+  res.json({ message: "Usuário removido com sucesso" });
 };

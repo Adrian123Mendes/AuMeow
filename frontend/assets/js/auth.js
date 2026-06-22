@@ -64,7 +64,8 @@ async function handleLoginSubmit(event) {
 
         const data = await parseApiResponse(response);
         setAuthSession(data);
-        showPetToast("Voce entrou com sucesso.", {
+        updateDashboardIdentity();
+        showPetToast("Você entrou com sucesso.", {
             title: "Login realizado",
             iconClass: "fa-solid fa-right-to-bracket"
         });
@@ -99,7 +100,7 @@ async function handleRegisterSubmit(event) {
     }
 
     if (payload.email !== emailConfirm.value.trim().toLowerCase()) {
-        showPetToast("Os e-mails informados nao coincidem.", {
+        showPetToast("Os e-mails informados não coincidem.", {
             title: "E-mails diferentes",
             iconClass: "fa-solid fa-envelope-circle-check",
             iconWrapperClass: "bg-red-100 text-red-500"
@@ -108,7 +109,7 @@ async function handleRegisterSubmit(event) {
     }
 
     if (payload.senha !== senhaConfirm.value) {
-        showPetToast("As senhas informadas nao coincidem.", {
+        showPetToast("As senhas informadas não coincidem.", {
             title: "Senhas diferentes",
             iconClass: "fa-solid fa-lock",
             iconWrapperClass: "bg-red-100 text-red-500"
@@ -136,8 +137,9 @@ async function handleRegisterSubmit(event) {
 
         const session = await parseApiResponse(loginResponse);
         setAuthSession(session);
+        updateDashboardIdentity();
         showPetToast("Conta criada e acesso liberado.", {
-            title: "Cadastro concluido",
+            title: "Cadastro concluído",
             iconClass: "fa-solid fa-user-check"
         });
         nav("dashboard");
@@ -156,12 +158,12 @@ function updateDashboardIdentity() {
 
     const greeting = document.getElementById("dashboardUserGreeting");
     if (greeting) {
-        greeting.textContent = `Ola, ${usuario.nome}!`;
+        greeting.textContent = `Olá, ${usuario.nome}!`;
     }
 
     const meta = document.getElementById("dashboardUserMeta");
     if (meta) {
-        meta.innerHTML = `<i class="fa-solid fa-paw text-brand-orange"></i> Usuario conectado`;
+        meta.innerHTML = `<i class="fa-solid fa-paw text-brand-orange"></i> Usuário conectado`;
     }
 
     const avatar = document.getElementById("dashboardUserAvatar");
@@ -187,6 +189,7 @@ function initAuthForms() {
 }
 
 window.requiresAuthScreen = requiresAuthScreen;
+window.updateDashboardIdentity = updateDashboardIdentity;
 window.logout = function logout() {
     clearAuthSession();
     nav("login");

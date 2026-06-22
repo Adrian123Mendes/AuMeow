@@ -16,11 +16,55 @@ function updateAiChatVisibility(screenId) {
     }
 }
 
+function filterAdoptionPets(filter = "all") {
+    const cards = document.querySelectorAll("[data-adoption-card]");
+    const buttons = document.querySelectorAll("[data-adoption-filter]");
+    let visibleCount = 0;
+
+    cards.forEach((card) => {
+        const shouldShow = filter === "all" || card.dataset.adoptionType === filter;
+        card.classList.toggle("hidden", !shouldShow);
+
+        if (shouldShow) {
+            visibleCount++;
+        }
+    });
+
+    buttons.forEach((button) => {
+        const isActive = button.dataset.adoptionFilter === filter;
+        button.classList.toggle("bg-orange-500", isActive);
+        button.classList.toggle("text-white", isActive);
+        button.classList.toggle("bg-white", !isActive);
+        button.classList.toggle("text-gray-500", !isActive);
+        button.classList.toggle("shadow-sm", true);
+    });
+
+    const resultCount = document.getElementById("adoptionResultCount");
+    if (resultCount) {
+        const plural = visibleCount === 1 ? "pet disponível" : "pets disponíveis";
+        resultCount.textContent = `${visibleCount} ${plural}`;
+    }
+}
+
+function initAdoptionFilters() {
+    document.querySelectorAll("[data-adoption-filter]").forEach((button) => {
+        button.addEventListener("click", () => {
+            filterAdoptionPets(button.dataset.adoptionFilter || "all");
+        });
+    });
+
+    filterAdoptionPets("all");
+}
+
 nav = function (screenId) {
     originalNav(screenId);
     updateAiChatVisibility(screenId);
 
     if (screenId === "dashboard") {
+        if (typeof window.updateDashboardIdentity === "function") {
+            window.updateDashboardIdentity();
+        }
+
         loadPets();
 
         if (typeof atualizarDashboardNextReminder === "function") {
@@ -31,6 +75,12 @@ nav = function (screenId) {
     if (screenId === "reminders") {
         if (typeof carregarLembretesPagina === "function") {
             setTimeout(() => carregarLembretesPagina(), 30);
+        }
+    }
+
+    if (screenId === "social") {
+        if (typeof window.loadSocial === "function") {
+            setTimeout(() => window.loadSocial(), 30);
         }
     }
 };
@@ -50,7 +100,8 @@ async function loadPets() {
 
         pets.forEach((pet) => {
             const zodiac = pet.signo ? { name: pet.signo } : getZodiacSignByDate(pet.aniversario);
-            const zodiacVisual = getZodiacPresentation(zodiac.name);
+            const zodiacName = getZodiacDisplayName(zodiac.name);
+            const zodiacVisual = getZodiacPresentation(zodiacName);
             const imageUrl = pet.foto ? buildApiUrl(`/uploads/pets/${pet.foto}`) : "";
 
             const card = document.createElement("div");
@@ -90,7 +141,7 @@ async function loadPets() {
             <div class="text-left leading-tight">
                 <span class="block text-[8px] text-[#9c7a63] font-bold uppercase tracking-[0.16em]">Signo</span>
                 <span class="block text-[11px] font-bold text-[var(--pet-ink)]">
-                    ${zodiac.name}
+                    ${zodiacName}
                 </span>
             </div>
         </div>
@@ -132,13 +183,13 @@ async function excluirPet(id, event) {
 
         await loadPets();
         showPetToast("Pet removido com sucesso.", {
-            title: "Pet excluido",
+            title: "Pet excluído",
             iconClass: "fa-solid fa-trash"
         });
     } catch (error) {
         console.error("Erro ao excluir pet:", error);
-        showPetToast("Nao foi possivel excluir o pet.", {
-            title: "Erro na exclusao",
+        showPetToast("Não foi possível excluir o pet.", {
+            title: "Erro na exclusão",
             iconClass: "fa-solid fa-triangle-exclamation",
             iconWrapperClass: "bg-red-100 text-red-500"
         });
@@ -146,5 +197,8 @@ async function excluirPet(id, event) {
 }
 
 window.excluirPet = excluirPet;
+window.filterAdoptionPets = filterAdoptionPets;
+
+document.addEventListener("DOMContentLoaded", initAdoptionFilters);
 
 nav(isAuthenticated() ? "dashboard" : "login");

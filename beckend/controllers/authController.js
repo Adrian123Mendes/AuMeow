@@ -7,11 +7,11 @@ export const login = async (req, res) => {
   const senha = req.body.senha;
 
   if (!email || !senha) {
-    return res.status(400).json({ error: "E-mail e senha sao obrigatorios." });
+    return res.status(400).json({ error: "E-mail e senha são obrigatórios." });
   }
 
   if (!process.env.JWT_SECRET) {
-    return res.status(500).json({ error: "JWT_SECRET nao configurado." });
+    return res.status(500).json({ error: "JWT_SECRET não configurado." });
   }
 
   try {
@@ -21,7 +21,7 @@ export const login = async (req, res) => {
     );
 
     if (rows.length === 0) {
-      return res.status(401).json({ error: "Usuario nao encontrado." });
+      return res.status(401).json({ error: "Usuário não encontrado." });
     }
 
     const usuario = rows[0];

@@ -24,7 +24,7 @@ export const criarPet = async (req, res) => {
     const { nome, raca, idade, aniversario, signo } = normalizePetPayload(req.body);
 
     if (!nome) {
-      return res.status(400).json({ error: "Nome do pet e obrigatorio." });
+      return res.status(400).json({ error: "Nome do pet é obrigatório." });
     }
 
     const foto = req.file ? req.file.filename : null;
@@ -69,7 +69,7 @@ export const buscarPet = async (req, res) => {
     );
 
     if (rows.length === 0) {
-      return res.status(404).json({ error: "Pet nao encontrado." });
+      return res.status(404).json({ error: "Pet não encontrado." });
     }
 
     res.json(rows[0]);
@@ -88,7 +88,7 @@ export const deletarPet = async (req, res) => {
     );
 
     if (result.affectedRows === 0) {
-      return res.status(404).json({ error: "Pet nao encontrado." });
+      return res.status(404).json({ error: "Pet não encontrado." });
     }
 
     res.json({ message: "Pet removido com sucesso." });
@@ -111,7 +111,7 @@ export const atualizarPet = async (req, res) => {
     );
 
     if (result.affectedRows === 0) {
-      return res.status(404).json({ error: "Pet nao encontrado." });
+      return res.status(404).json({ error: "Pet não encontrado." });
     }
 
     const [rows] = await db.query(

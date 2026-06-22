@@ -1,6 +1,6 @@
 # AuMeow
 
-Projeto com frontend estatico, backend em Node.js/Express, MySQL e integracao com Ollama.
+Projeto com frontend estático, backend em Node.js/Express, MySQL e integração com Ollama.
 
 ## Requisitos
 
@@ -11,7 +11,7 @@ Projeto com frontend estatico, backend em Node.js/Express, MySQL e integracao co
 
 ## Clonar e instalar
 
-Instale as dependencias na raiz, no backend e no demo do Supabase:
+Instale as dependências na raiz, no backend e no demo do Supabase:
 
 ```powershell
 npm install
@@ -22,7 +22,7 @@ npm install
 cd ..
 ```
 
-## Configurar variaveis de ambiente
+## Configurar variáveis de ambiente
 
 Crie o arquivo `beckend/.env` a partir do exemplo:
 
@@ -36,7 +36,9 @@ Valores esperados no `beckend/.env`:
 PORT=3000
 DB_HOST=localhost
 DB_PORT=3307
-OLLAMA_HOST=http://localhost:11435
+OLLAMA_HOST=http://localhost:11434
+OLLAMA_MODEL=gemma3:4b
+OLLAMA_TIMEOUT_MS=120000
 DB_USER=root
 DB_PASSWORD=root
 DB_NAME=aumeow
@@ -51,16 +53,16 @@ O projeto inclui um `docker-compose.yml` que sobe o MySQL e aplica automaticamen
 docker compose up -d
 ```
 
-Configuracao atual do banco:
+Configuração atual do banco:
 
 - host: `localhost`
 - porta externa: `3307`
 - porta interna do container: `3306`
 - banco: `aumeow`
-- usuario: `root`
+- usuário: `root`
 - senha: `root`
 
-Se o seu arquivo `beckend/.env` ja existe, confira pelo menos estes campos:
+Se o seu arquivo `beckend/.env` já existe, confira pelo menos estes campos:
 
 ```env
 DB_HOST=localhost
@@ -70,15 +72,15 @@ DB_PASSWORD=root
 DB_NAME=aumeow
 ```
 
-## Usuario demo
+## Usuário demo
 
-O schema cria um usuario inicial com o email `demo@aumeow.local`.
+O schema cria um usuário inicial com o email `demo@aumeow.local`.
 
-A senha em texto puro nao esta documentada no repositorio. Se voce precisar testar o login em outra maquina, o caminho mais seguro e atualizar esse usuario direto no banco ou inserir um novo usuario com uma senha conhecida.
+A senha em texto puro não está documentada no repositório. Se você precisar testar o login em outra máquina, o caminho mais seguro é atualizar esse usuário direto no banco ou inserir um novo usuário com uma senha conhecida.
 
 ## Reinicializar o banco
 
-Se voce ja tinha subido o container antigo com senha vazia, recrie o volume para aplicar a nova configuracao e rodar o schema novamente:
+Se você já tinha subido o container antigo com senha vazia, recrie o volume para aplicar a nova configuração e rodar o schema novamente:
 
 ```powershell
 docker compose down -v
@@ -92,7 +94,7 @@ cd beckend
 npm start
 ```
 
-Backend disponivel em `http://localhost:3000`.
+Backend disponível em `http://localhost:3000`.
 
 Principais rotas:
 
@@ -104,16 +106,24 @@ Principais rotas:
 
 ## Executar o frontend
 
-O frontend esta em `frontend/`. Como ele e estatico, pode ser aberto por um servidor simples. Exemplo com VS Code Live Server ou outro servidor HTTP local.
+O frontend está em `frontend/`. Como ele é estático, pode ser aberto por um servidor simples. Exemplo com VS Code Live Server ou outro servidor HTTP local.
 
 Se o frontend estiver configurado para consumir a API local, mantenha o backend rodando em `http://localhost:3000`.
 
 ## Ollama
 
-O backend usa Ollama. Garanta que o servico esteja ativo na maquina e acessivel pela URL definida em `OLLAMA_HOST`.
+O backend usa Ollama. Garanta que o serviço esteja ativo na máquina e acessível pela URL definida em `OLLAMA_HOST`.
 
-## Observacoes
+O modelo padrão é `gemma3:4b`, porque respondeu com mais coerência nos testes locais:
 
-- O arquivo real `beckend/.env` nao deve ser enviado ao GitHub.
-- A pasta `uploads/pets` e criada automaticamente quando houver upload de imagem.
-- Existe tambem um `index.js` na raiz com uma rota simples de chat, mas a aplicacao principal roda por `beckend/server.js`.
+```powershell
+ollama pull gemma3:4b
+```
+
+Se faltar memória, feche outros programas antes de iniciar o chat ou configure outro modelo em `OLLAMA_MODEL`.
+
+## Observações
+
+- O arquivo real `beckend/.env` não deve ser enviado ao GitHub.
+- A pasta `uploads/pets` é criada automaticamente quando houver upload de imagem.
+- Existe também um `index.js` na raiz com uma rota simples de chat, mas a aplicação principal roda por `beckend/server.js`.

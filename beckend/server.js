@@ -7,20 +7,23 @@ import iaRoutes from "./routes/ia.js";
 import lembreteRoutes from "./routes/lembretes.js";
 import authRoutes from "./routes/auth.js";
 import usuarioRoutes from "./routes/usuarios.js";
+import socialRoutes from "./routes/social.js";
 import { ensureDatabaseSchema } from "./db.js";
+import { PET_UPLOAD_DIR } from "./config/uploads.js";
 
 dotenv.config();
 
 const app = express();
 app.use(cors());
 app.use(express.json());
-app.use("/uploads/pets", express.static("uploads/pets"));
+app.use("/uploads/pets", express.static(PET_UPLOAD_DIR));
 
 app.use("/api/auth", authRoutes);
 app.use("/api/usuarios", usuarioRoutes);
 app.use("/api/pets", petRoutes);
 app.use("/api/ia", iaRoutes);
 app.use("/api/lembretes", lembreteRoutes);
+app.use("/api/social", socialRoutes);
 
 app.get("/", (req, res) => {
   res.send("API AuMeow funcionando");
